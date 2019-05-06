@@ -1,0 +1,112 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "文件上传";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+<link href="~/Content/plupload/js/jquery.ui.plupload/css/jquery.ui.plupload.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/plupload/js/jquery-ui.css" rel="stylesheet" />
+<script type="text/javascript" src="~/Content/plupload/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="~/Content/plupload/js/browserplus.min.js"></script>
+<script type="text/javascript" src="~/Content/plupload/js/plupload.full.min.js"></script>
+<script type="text/javascript" src="~/Content/plupload/js/i18n/zh_CN.js"></script>
+<script type="text/javascript" src="~/Content/plupload/js/jquery.ui.plupload/jquery.ui.plupload.js"></script>
+<script type="text/javascript">
+    var fileList = [];
+    var autoFinishCallback;
+
+    $(function() {
+        $("#uploader").plupload({
+            runtimes: "html5,flash,silverlight,html4",
+            url: "@Url.Action("Upload")", // 服务端上传路径
+            max_file_size: "100mb", // 文件上传最大限制。
+            chunk_size: "100mb", // 上传分块每块的大小，这个值小于服务器最大上传限制的值即可。
+
+            // 文件类型限制
+            filters: [
+                { title: "@ViewBag.Title", extensions: "@ViewBag.Extension" }
+            ],
+            rename: true,
+            sortable: true,
+            dragdrop: true,
+            views: {
+                list: true,
+                thumbs: true,
+                active: "thumbs"
+            },
+            buttons: {
+                stop: false
+            },
+
+            // Flash文件 的所在路径
+            flash_swf_url: "~/Content/plupload/js/Moxie.swf",
+
+            // silverlight文件所在路径
+            silverlight_xap_url: "~/Content/plupload/js/Moxie.xap",
+            multipart: true,
+            init: {
+                UploadComplete: function (up, files) {
+                    if (autoFinishCallback) {
+                        autoFinishCallback(fileList);
+                    } else {
+                        if (top && top.layer) {
+                            top.layer.msg("上传完成！", {
+                                icon: 6,
+                                time: 1500
+                            });
+                        }
+                    }
+                },
+                FileUploaded: function(up, files, result) {
+                    fileList.push(JSON.parse(result.response));
+                },
+                BeforeUpload: function(up, file) {
+                    up.settings.multipart_params = {
+                        filename: file.name
+                    }
+                }
+            }
+        });
+    });
+
+    var setAutoFinishCallback = function(callback) {
+        autoFinishCallback = callback;
+    };
+</script>
+<style>
+    .tip {
+        font-size: 13px;
+        color: #ff7f50;
+        padding: 5px 0 5px 15px;
+    }
+
+    .plupload_file_rename, .plupload_file_namespan {
+        height: 17px;
+        font-size: 14px;
+        font-weight: normal;
+    }
+
+    .plupload_content {
+        overflow-x: hidden;
+    }
+
+    .plupload_view_thumbs .plupload_file_size {
+        text-align: center;
+    }
+
+    .plupload_droptext {
+        color: gray;
+    }
+</style>
+
+<div id="uploader">
+    <p>
+        你的浏览器没有Flash支持，请安装最新的Flash！
+    </p>
+</div>
+<div class="tip">
+    <p>
+        提示：单个文件大小不可超过 <b>100</b> M！
+    </p>
+</div>

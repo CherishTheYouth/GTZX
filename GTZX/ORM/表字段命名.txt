@@ -1,0 +1,16 @@
+常见字段名称命名：
+Id -- 主键
+Name -- 名称
+Remark -- 备注
+IsEnable -- 是否启用
+IsDelete -- 是否删除
+OrderNumber -- 排序号
+ModifierId -- 更新人Id
+ModifyTime -- 更新时间
+CreatorId -- 创建人Id
+CreateTime -- 创建时间
+
+
+规则：
+关联表Id，一律命名表明+Id，如RoleId
+表示是否的字段，统一采用bool类型，命名Is开头

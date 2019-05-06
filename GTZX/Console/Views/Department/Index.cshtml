@@ -1,0 +1,228 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "部门管理";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+<link href="~/Content/fancytree/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/fancytree/skin-win8/ui.fancytree.css" rel="stylesheet" />
+<script src="~/Content/fancytree/jquery-ui.min.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.table.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.dnd.js"></script>
+<script src="~/Content/fancytree/jquery.ui-contextmenu.min.js"></script>
+<div>
+    <input type="button" class="layui-btn layui-btn-small layui-btn-primary" value="刷新部门" onclick=" refreshData() " />
+    <input type="button" class="layui-btn layui-btn-small layui-btn-primary" value="全部展开/折叠" onclick=" collapseOrExpand() " />
+    <input type="button" class="layui-btn layui-btn-small layui-btn-normal" value="新增顶级部门" onclick=" addTopDepartment() " />
+</div>
+<div>
+    <table id="tree" class="layui-table">
+        <colgroup>
+            <col style="width: 100%">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>部门名称</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    var isExpanded = false;
+
+    var collapseOrExpand = function () {
+        isExpanded = !isExpanded;
+        $("#tree").fancytree("getTree").visit(function (node) {
+            node.setExpanded(isExpanded);
+        });
+    };
+
+    var handingNode = { node: null, cmd: null };
+    var refreshItem = function (data) {
+        if (handingNode.cmd === "edit" && handingNode.node) {
+            handingNode.node.data = data;
+            handingNode.node.render(true);
+            handingNode.node.setTitle(data.title);
+        }
+        if (handingNode.cmd === "addDepartment" || handingNode.cmd === "addFunc") {
+            if (!handingNode.node) {
+                handingNode.node = $("#tree").fancytree("getRootNode");
+            }
+            handingNode.node.addNode(data);
+            handingNode.node.setExpanded(true);
+        }
+    };
+
+    var treeSource = { url: "@Url.Action("GetList")" };
+    var refreshData = function () {
+        $("#tree").fancytree("getTree").reload(treeSource);
+        isExpanded = false;
+    };
+
+    var addTopDepartment = function () {
+        handingNode = { node: null, cmd: "addDepartment" };
+        addDepartment();
+    };
+
+    var addDepartment = function (parentId) {
+        app.openWindow({
+            width: 600,
+            height: 350,
+            title: "新增部门",
+            url: "@Url.Action("Modify")?parentId=" + parentId,
+            btn: ["确定", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.saveInfo(function (data) {
+                        refreshItem(data);
+                        app.closeWindow(index, true);
+                        app.showSuccess("保存成功！");
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var modifyDepartment = function (id) {
+        app.openWindow({
+            width: 600,
+            height: 350,
+            title: "编辑部门",
+            url: "@Url.Action("Modify")?id=" + id,
+            btn: ["保存", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.saveInfo(function (data) {
+                        refreshItem(data);
+                        app.closeWindow(index, true);
+                        app.showSuccess("保存成功！");
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    $(function () {
+        $("#tree").fancytree({
+            checkbox: false,
+            titlesTabbable: true,     // Add all node titles to TAB chain
+            quicksearch: true,        // Jump to nodes when pressing first character
+            // source: SOURCE,
+            source: treeSource,
+
+            extensions: ["dnd", "table"],
+
+            dnd: {
+                preventVoidMoves: true,
+                preventRecursiveMoves: true,
+                autoExpandMS: 400,
+                dragStart: function () {
+                    return true;
+                },
+                dragEnter: function () {
+                    return true;
+                },
+                dragDrop: function (node, data) {
+                    ajax({
+                        url: "@Url.Action("DragDepartment")",
+                        data: {
+                            sourceId: data.otherNode.data.id,
+                            targetId: node.data.id,
+                            hitMode: data.hitMode
+                        },
+                        success: function (d) {
+                            if (d.Result) {
+                                data.otherNode.moveTo(node, data.hitMode);
+                            } else {
+                                app.showError(d.Message);
+                            }
+                        }
+                    });
+                }
+            },
+            table: {
+                indentation: 20,
+                nodeColumnIdx: 0,
+                checkboxColumnIdx: 0
+            },
+            gridnav: {
+                autofocusInput: false,
+                handleCursorKeys: true
+            },
+            renderColumns: function (event, data) {
+                var node = data.node;
+                var tdList = $(node.tr).find(">td");
+                tdList.eq(1).html("<i class=\"" + node.data.menuIcon + "\"></i>");
+                tdList.eq(2).html(node.data.url);
+            }
+        }).on("nodeCommand", function (event, data) {
+            var tree = $(this).fancytree("getTree");
+            var node = tree.getActiveNode();
+
+            switch (data.cmd) {
+                case "edit":
+                    modifyDepartment(node.data.id);
+                    handingNode = { node: node, cmd: data.cmd };
+                    break;
+                case "delete":
+                    var tip = "您确定要删除该部门？";
+                    var success = function (d) {
+                        if (d.Result) {
+                            app.showSuccess("删除成功！");
+                            node.remove();
+                        } else {
+                            showError(d.Message);
+                        }
+                    };
+                    top.layer.confirm(tip, {
+                        btn: ["确定删除", "取消"],
+                        title: "提示"
+                    }, function () {
+                        app.invokeService({
+                            url: "@Url.Action("RemoveDepartment")?id=" + node.data.id,
+                            success: success
+                        });
+                    });
+                        break;
+                    case "addDepartment":
+                        addDepartment(node.data.id);
+                        handingNode = { node: node, cmd: data.cmd };
+                        break;
+                    default:
+                        showWarning("Unhandled command: " + data.cmd);
+                        return;
+                }
+        });
+
+        $("#tree").contextmenu({
+            delegate: "tbody tr",
+            menu: [
+                { title: "编辑", cmd: "edit", uiIcon: "ui-icon-pencil" },
+                { title: "删除", cmd: "delete", uiIcon: "ui-icon-trash" },
+                { title: "----" },
+                { title: "新增子部门", cmd: "addDepartment", uiIcon: "ui-icon-plus" }
+            ],
+            beforeOpen: function (event, ui) {
+                var node = $.ui.fancytree.getNode(ui.target);
+                node.setActive();
+            },
+            select: function (event, ui) {
+                var that = this;
+                // delay the event, so the menu can close and the click event does
+                // not interfere with the edit control
+                setTimeout(function () {
+                    $(that).trigger("nodeCommand", { cmd: ui.cmd });
+                }, 100);
+            }
+        });
+    });
+</script>

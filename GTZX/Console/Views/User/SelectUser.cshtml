@@ -1,0 +1,192 @@
+﻿@using Modules
+@using Newtonsoft.Json
+@model List<Guid>
+@{
+    ViewBag.Title = "通用用户选择界面";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+<link href="~/Content/fancytree/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/fancytree/skin-win8/ui.fancytree.css" rel="stylesheet" />
+<script src="~/Content/fancytree/jquery-ui.min.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.js"></script>
+<style>
+    #tree {
+        height: 340px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -ms-border-radius: 4px;
+        border-radius: 4px;
+        border: 1px solid #d3d3d3;
+        margin-top: 16px;
+    }
+
+    #divUser {
+        margin-top: 8px;
+        overflow-y: auto;
+        -ms-border-radius: 4px;
+        border-radius: 4px;
+        border: 1px solid #d3d3d3;
+        padding: 10px 0 0 15px;
+    }
+
+        #divUser .layui-form-checkbox {
+            margin-bottom: 10px;
+        }
+
+    .ui-fancytree {
+        border: none !important;
+    }
+</style>
+
+@{
+    <script>
+        var allowMulti = ("@ViewBag.allowMulti" === "True");
+        var selectedList = eval("@(JsonConvert.SerializeObject(ViewBag.selectedList))");
+        var validateUserExist = "@ViewBag.validateUserExist";
+    </script>
+}
+<form class="layui-form">
+    <div style="float: left; width: 34%; height: 100%; overflow: auto;">
+        <input type="button" class="layui-btn layui-btn-small layui-btn-normal" value="展开/折叠" onclick=" expandOrCollspanAll() " />
+        <input type="button" class="layui-btn layui-btn-small layui-btn-warning" value="全部" onclick=" showAll() " />
+        <div id="tree" class="unselectable"></div>
+    </div>
+    <div style="float: left; width: 64%; overflow: auto; margin-left: 2%;">
+        <input type="text" id="tbName" class="layui-input" placeholder="输入姓名筛选" onkeydown="nameKeyPress()"/>
+        <div id="divUser">
+            @{
+                var employees = (ViewBag.allEmployees as List<Employee>) ?? new List<Employee>();
+                foreach (var employee in employees)
+                {
+                <input type="checkbox" value="@employee.Id" title="@employee.FullName" departmentid="@employee.DepartmentId" @(Model.Contains(employee.Id) ? "checked='checked'" : "")/>
+                }
+            }
+        </div>
+    </div>
+    <div style="clear: both"></div>
+</form>
+
+<script>
+    var form;
+    var inputting = false;
+    var inputtingTimeout;
+
+    $(document).ready(function () {
+        form = layui.form;
+        form.render();
+        setHeight();
+        loadTree();
+
+        form.on("checkbox", function (data) {
+            if (data.elem.checked) {
+                if (!allowMulti) {
+                    $(data.elem).parent().children().each(function (i, item) {
+                        if (item !== data.elem) {
+                            item.checked = false;
+                            $(item).next().removeClass("layui-form-checked");
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    var filterUserByName = function () {
+        var activeNode = $("#tree").fancytree("getTree").getActiveNode();
+        if (activeNode) {
+            activeNode.setActive(false);
+        }
+        var name = $("#tbName").val();
+        $("#divUser input").each(function () {
+            if ($(this).attr("title").indexOf(name) >= 0) {
+                $(this).next().show();
+            } else {
+                $(this).next().hide();
+            }
+        });
+    };
+
+    var nameKeyPress = function() {
+        if (inputting) {
+            clearTimeout(inputtingTimeout);
+        }
+        inputting = true;
+        inputtingTimeout = setTimeout(function () {
+            inputting = false;
+            filterUserByName();
+        }, 300);
+    };
+
+    var setHeight = function () {
+        var screenHeight = document.documentElement.clientHeight;
+        $("#tree").height(screenHeight - 70);
+        $("#divUser").height(screenHeight - 80);
+    };
+
+    var isExpanded = false;
+    var expandOrCollspanAll = function () {
+        isExpanded = !isExpanded;
+        $("#tree").fancytree("getTree").visit(function (node) {
+            node.setExpanded(isExpanded);
+        });
+    };
+
+    var showAll = function () {
+        var activeNode = $("#tree").fancytree("getTree").getActiveNode();
+        if (activeNode) {
+            activeNode.setActive(false);
+        }
+        filterByDepartment();
+    };
+
+    var filterByDepartment = function (node) {
+        $("#tbName").val("");
+        if (node) {
+            $("#divUser input").each(function () {
+                $(this).next().hide();
+            });
+            node.visit(function (child) {
+                var key = child.key;
+                $("#divUser input[departmentid='" + key + "']").each(function () {
+                    $(this).next().show();
+                });
+            },true);
+        } else {
+            $("#divUser input").each(function () {
+                $(this).next().show();
+            });
+        }
+    };
+
+    var treeSource = { url: "@Url.Action("GetList", "Department")" };
+    var loadTree = function () {
+        $("#tree").fancytree({
+            checkbox: false,
+            selectMode: 1,
+            titlesTabbable: true,
+            quicksearch: true,
+            autoActivate: false,
+            source: treeSource,
+            click: function (event, data) {
+                filterByDepartment(data.node);
+            }
+        });
+    };
+
+    var getSelectedItems = function (callback) {
+        var selectedIds = [];
+        $("#divUser input").each(function () {
+            if ($(this)[0].checked) {
+                selectedIds.push({
+                    id: $(this).val(),
+                    name: $(this).attr("title"),
+                    departmentid: $(this).attr("departmentid")
+                });
+            }
+        });
+        if (callback) {
+            callback(selectedIds);
+        }
+    };
+</script>

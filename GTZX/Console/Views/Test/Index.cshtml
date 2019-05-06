@@ -1,0 +1,64 @@
+﻿@using Console.Util
+
+@{ 
+    Layout = Href("../Shared/_TopLayout.cshtml"); ViewBag.Title = "Index";
+}
+<script src="~/Content/js/jquery-2.1.0.min.js"></script>
+
+
+<div> 
+    <label>姓名:</label><input type="text" id="loginName" name="loginName"/>
+    <label>密码:</label><input type="password" id="loginPwd" name="loginPwd"/>
+    <input type="button" id="loginBtn" value="登录"/>
+    <input type="button" id="getRegulationList" value="获取政策列表" />
+</div>
+
+<div id="reguBlock">
+    <div id="regulation"></div>
+</div>
+
+
+<script type="text/javascript">
+
+
+    $("#loginBtn").click(function () {
+        var name = $("#loginName").val();
+        var pwd = $("#loginPwd").val();
+        app.invokeService({
+            url: "@ConfigUtil.GetApiUrl()/api/user/getUser/" + name + "/" + pwd,
+            type:"get",
+            success: function (data) {
+
+                alert(data.Result);
+               
+            ///    alert(JSON.stringify(data));
+            }
+        })
+    });
+
+    $("#getRegulationList").click(function () {
+        app.invokeService({
+            url: "@ConfigUtil.GetApiUrl()/api/regulation/getRegulationList",
+            type: "get",
+            success: function (data) {
+
+                alert(JSON.stringify(data));
+              
+            }
+        })
+
+    });
+
+    function disPlay(data) {
+        var reguTable = $("<table></table>");
+        for (i = 0; i <= data.length;i++)
+        {
+            JSON.stringify(data.RegulationName);
+            var reguTableContent = $("<tr><td>" + data.Id + "</td><td>" + data.RegulationName + "</td><td>" + data.RegulationNo + "</td><td>" + data.PublishDep + "</td><td>" + data.DicItemName + "</td></tr>");
+            reguTableContent.appendTo(reguTable);
+        }
+        $("#regulation").html(reguTable);
+    }
+
+
+</script>

@@ -1,0 +1,43 @@
+﻿@model dynamic
+@{
+    ViewBag.Title = "title";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+<link href="~/Content/fancytree/skin-win8/ui.fancytree.css" rel="stylesheet" />
+<script src="~/Content/fancytree/jquery-ui.min.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.js"></script>
+<style>
+    .ui-fancytree {
+        border: none !important;
+    }
+</style>
+<script type="text/javascript">
+    var treeSource = { url: "@Url.Action("GetSelectList", new {ViewBag.selectedList,ViewBag.dic})" };
+    treeSource.url = treeSource.url.replace('&amp;', '&');
+    var arrData = [];
+    $(function () {
+       
+        // --- Initialize sample trees
+        $("#tree1").fancytree({
+            checkbox: true,
+            selectMode:@ViewBag.allowMultiNum ,
+            source: treeSource
+        });
+    });
+</script>
+<!-- Tree #1 -->
+<div id="tree1">
+</div>
+<script>
+    var callbackdata = function () {
+        var arrData = [];
+        var selectedNodes = $("#tree1").fancytree("getTree").getSelectedNodes();
+        for (var i = 0; i < selectedNodes.length; i++) {
+            var myObj = new Object();
+            myObj.id = selectedNodes[i].key;
+            myObj.title = selectedNodes[i].title;
+            arrData.push(myObj);
+        }
+        return arrData;
+    }
+</script>

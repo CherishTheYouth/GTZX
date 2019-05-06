@@ -1,0 +1,217 @@
+﻿ 
+@{
+    ViewBag.Title = "Resgiter_用户注册";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+<link rel="stylesheet" href="~/Content/css/registerfirst.css">
+<link rel="stylesheet" href="~/Content/css/reset.css">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        font-family: Helvetica;
+    }
+
+    header {
+        height: 100px;
+        width: 100%;
+    }
+
+        header span {
+            font-size: 40px;
+            color: #009ce4;
+            font-weight: 400;
+            line-height: 100px;
+            margin-left: 12%;
+        }
+
+    .content {
+        position: absolute;
+        top: 100px;
+        left: 0;
+        height: calc( 100% - 200px);
+        width: 100%;
+        background: #009ce4;
+    }
+
+    .container {
+        margin: 0 auto;
+        width: 76%;
+        height: 100%;
+    }
+
+    .left {
+        height: 100%;
+        position: absolute;
+        background: url(../Content/images/login.png) no-repeat left center;
+        width: 650px;
+        background-size: 72%;
+    }
+
+    .right {
+        position: absolute;
+        width: 360px;
+        height: 390px;
+        background: #fff;
+        top: 50%;
+        right: 12%;
+        margin-top: -195px;
+        float: right;
+    }
+
+        .right h3 {
+            font-weight: 700;
+            color: #333;
+            font-size: 20px;
+            margin: 20px 0 0 32px;
+        }
+
+    .layui-form-item {
+        margin-left: 32px;
+        margin-right: 32px;
+        margin-top: 16px;
+    }
+
+    .layui-form-label {
+        border-radius: 2px 0 0 2px;
+        text-align: center;
+        background: #e2e2e4;
+        width: 44px;
+        padding: 9px 0;
+    }
+
+    .layui-input {
+        border: none;
+        width: 242px;
+    }
+
+    .layui-btn-normal {
+        padding: 0 132px;
+        height: 40px;
+        font-size: 16px;
+        background: #009ce4 !important;
+    }
+
+    .layui-form-checked[lay-skin=primary] i {
+        border-color: #009ce4 !important;
+        background: #009ce4 !important;
+    }
+
+    .layui-form-span a {
+        color: #797979;
+    }
+
+    .layui-form-span img {
+        margin-left: 5px;
+    }
+
+    .layui-border {
+        border: 1px solid #cdcdcd;
+    }
+
+    .layui-btn-primary {
+        border: none;
+        width: 110px;
+        height: 40px;
+        margin-right: 0;
+    }
+
+    .layui-form-item .layui-inline {
+        margin-bottom: 0;
+    }
+
+    footer {
+        width: 100%;
+        height: 100px;
+        line-height: 100px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        color: #797979;
+    }
+
+    .end_text {
+        margin: 0 auto;
+        width: 76%;
+        height: 100px;
+    }
+</style>
+
+
+<div class="layui-form">
+    <header><span>武汉邻睦互助网络系统平台</span></header>
+    <div class="content" id="content">
+        <div class="container">
+            <div class="left"></div>
+            <div class="right">
+
+                <h3>账号注册</h3>
+
+                <div class="layui-form-item layui-border">
+                    <label class="layui-form-label">
+                        <img src="../Content/images/user.png" alt=""></label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="username" lay-verify="required" placeholder="用户名" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-border">
+                    <label class="layui-form-label">
+                        <img src="../Content/images/password.png" alt=""></label>
+                    <div class="layui-input-inline">
+                        <input type="password" name="username" lay-verify="required" placeholder="密码" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-border">
+                    <label class="layui-form-label">
+                        <img src="../Content/images/password.png" alt=""></label>
+                    <div class="layui-input-inline">
+                        <input type="password" name="username" lay-verify="required" placeholder="确认密码" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-inline layui-border" style="margin-left: 0;">
+                        <label class="layui-form-label">
+                            <img src="../Content/images/verify.png" alt=""></label>
+                        <input type="text" class="layui-input" placeholder="手机验证码" style="margin: 0; width: 127px;">
+                    </div>
+                    <div class="layui-inline layui-border" style="float: right; margin-right: 0px;">
+                        <button class="layui-btn layui-btn-primary">获取验证码</button>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-normal">注册</button>
+                </div>
+
+                <div class="layui-form-item" style="margin-top: 20px;">
+                    <div class="layui-inline" style="float: left;">
+                        <span for="" class="layui-form-span"><a href="">我先逛逛</a></span>
+                    </div>
+                    <div class="layui-inline" style="float: right; margin-right: 0px;">
+                        <span class="layui-form-span"><a href="">去登录<img src="../Content/images/enter.png" alt=""></a></span>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="end_text">
+            <span class="layui-form-span" style="float: left; margin-left: 1.5%;">®2018-2020 &nbsp; 武汉时代地智科技股份有限公司 &nbsp; 版权所有</span>
+            <span class="layui-form-span" style="float: right; margin-right: 0;">网站地图 &nbsp; | &nbsp; 法律声明 &nbsp; |  &nbsp;友情链接</span>
+        </div>
+    </footer>
+</div>
+@*<script>
+    layui.use(['form'], function () {
+        var form = layui.form
+    })
+
+
+</script>*@
+

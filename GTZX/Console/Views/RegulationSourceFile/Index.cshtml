@@ -1,0 +1,134 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "政策文件原始附件管理";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+
+<div>
+    <div class="layui-inline">
+        <div class="layui-input-inline">
+            <input id="tbRegulationFileName" type="text" class="layui-input" placeholder="文件名称" />
+        </div>
+        <div class="layui-input-inline">
+            <input id="tbRegulationFileNo" type="text" class="layui-input" placeholder="文件编号" />
+        </div>
+    </div>
+
+    <div funcCode="RegulationFile" class="layui-inline">
+        <div class="layui-input-inline">
+            <input type="button" class="layui-btn layui-btn-primary" value="查询" onclick="query() " />
+        </div>
+        <div class="layui-input-inline">
+            <input type="button" class="layui-btn layui-btn-small layui-btn-normal" value="新增" onclick="Add() " />
+        </div>
+    </div>
+</div>
+
+<div>
+    <table id="tree" class="layui-table">
+        <colgroup>
+            <col style="width: 30%">
+            <col>
+            <col style="width: 280px">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>文件名称</th>
+                <th>文件编号</th>
+                <th>上传日期</th>
+                <th class="align-center">操作</th>
+            </tr>
+        </thead>
+        <tbody id="tBody"></tbody>
+    </table>
+    <div id="divPage"></div>
+</div>
+
+<script id="template" type="text/html">
+    {{# layui.each(d,function(index,item){ }}
+    <tr>
+        <td>
+            {{=item.FileName}}
+        </td>
+        <td>
+            {{=item.FileNo}}
+        </td>
+        <td>
+            {{=item.UploadDate}}
+        </td>
+        <td class="table-operation-box textCenter">
+            <i class="layui-icon table-operation" onclick="showItem('{{=item.Id}}')" title="详情">&#xe615;</i>
+            <span class="table-operation-spliter" funcCode="ManageThing-edit">|</span>
+            <i class="layui-icon table-operation" onclick="modifyItem('{{item.Id}}')" title="编辑" funcCode="ManageThing-edit">&#xe642;</i>
+            <span class="table-operation-spliter" funcCode="ManageThing-edit&ManageThing-delete">|</span>
+            <i class="layui-icon table-operation" onclick="removeItem('{{item.Id}}')" title="删除" funcCode="ManageThing-delete">&#xe640;</i>
+        </td>
+    </tr>
+    {{#});}}
+    {{# if(d.length == 0){}}
+    <tr><td class="empty-table" colspan="20">暂无数据</td></tr>
+    {{#}}}
+</script>
+
+
+
+<script>
+    //进入页面时加载页面数据
+    $(document).ready(function () {
+        query();
+        app.tapEnter("#tbRegulationFileName", query);
+        app.tapEnter("#tbRegulationFileNo", query);
+        // app.tapEnter("#tbPublishDep", query);
+    });
+
+    var condition;
+    var loadData = function (data) {
+        var tpl = $("#template").html();
+        layui.laytpl(tpl).render(data, function (html) {
+            $("#tBody").html(html);
+            window.handleForbiddenFuncs();
+        });
+    };
+    var query = function () {
+        var page = (condition && condition.page) ? condition.page : 1;
+        condition = {
+            page: page,
+            fileName: $("#tbRegulationFileName").val(),
+            fileNo: $("#tbRegulationFileNo").val()
+        };
+        app.loadList("@Url.Action("GetList")", condition, loadData, "divPage");
+    }
+
+    var Add = function () {
+        var url = "@Url.Action("Modify")";
+        window.location.href = url;
+    }
+
+    //详情
+    var showItem = function (id) {
+        window.location.href = "@Url.Action("ShowDetail")?id=" + id;
+    };
+
+    //编辑
+    var modifyItem = function (id) {
+        window.location.href = "@Url.Action("Modify")?id=" + id;
+    };
+    //删除
+     var removeItem = function (id) {
+        top.layer.confirm("您确定要删除该事务？", {
+            btn: ["确定删除", "取消"],
+            title: "提示"
+        }, function () {
+            app.invokeService({
+                url: "@Url.Action("Romove")?id=" + id,
+                success: function () {
+                    query();
+                    app.showSuccess("删除成功！");
+                }
+            });
+        });
+    };
+
+</script>

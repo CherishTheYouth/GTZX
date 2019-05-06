@@ -1,0 +1,175 @@
+﻿@model Modules.Role
+
+@{
+    ViewBag.Title = "新增/编辑角色";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+<link href="~/Content/fancytree/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/fancytree/skin-win8/ui.fancytree.css" rel="stylesheet" />
+<script src="~/Content/fancytree/jquery-ui.min.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.js"></script>
+<script src="~/Content/fancytree/jquery.ui-contextmenu.min.js"></script>
+<style>
+    .ui-fancytree {
+        border: none !important;
+    }
+
+    .layui-tab-item {
+        position: relative;
+    }
+</style>
+
+@using (Ajax.BeginForm("SaveRole", new { Model.Id }, new AjaxOptions { HttpMethod = "Post", OnSuccess = "saveSuccessed", OnBegin = "validateData" }, new { @class = "layui-form" }))
+{
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">基本信息</li>
+            <li>菜单权限</li>
+            <li>功能权限</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="layui-form-item">
+                    <label class="layui-form-label required">角色名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="Name" lay-verify="required" autocomplete="false" class="layui-input" value="@Model.Name"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-block">
+                        <textarea name="Remark" class="layui-input" style="height: 80px">@Model.Remark</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div id="treeMenu" class="unselectable"></div>
+            </div>
+            <div class="layui-tab-item">
+                <div id="treeFunc" class="unselectable"></div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="hidMenu" name="selectedMenuIds" />
+    <input type="hidden" id="hidFunc" name="selectedFuncIds" />
+}
+
+<script>
+    var successCallback;
+
+    $(document).ready(function () {
+        loadTree("treeMenu", sourceMenu);
+        loadTree("treeFunc", sourceFunc);
+    });
+
+    var sourceMenu = { url: "@Url.Action("GetMenuList", new { roleId = Model.Id })" };
+    var sourceFunc = { url: "@Url.Action("GetFuncList", new { roleId = Model.Id })" };
+
+    var loadTree = function (treeId, treeSource) {
+        $("#" + treeId).fancytree({
+            checkbox: true,
+            selectMode: 2,
+            titlesTabbable: true, // Add all node titles to TAB chain
+            quicksearch: true, // Jump to nodes when pressing first character
+            // source: SOURCE,
+            source: treeSource
+        }).on("nodeCommand", function (event, data) {
+            var tree = $(this).fancytree("getTree");
+            var node = tree.getActiveNode();
+
+            switch (data.cmd) {
+                case "selectNode":
+                    node.visitParents(function (n) {
+                        n.setSelected(true);
+                    });
+                    node.visit(function (n) {
+                        n.setSelected(true);
+                    }, true);
+                    break;
+                case "deselectNode":
+                    node.visit(function (n) {
+                        n.setSelected(false);
+                    }, true);
+                    break;
+                case "selectAll":
+                    tree.visit(function (n) {
+                        n.setSelected(true);
+                    });
+                    break;
+                case "deselectAll":
+                    tree.visit(function (n) {
+                        n.setSelected(false);
+                    });
+                    break;
+                default:
+                    app.showWarning("Unhandled command: " + data.cmd);
+                    return;
+            }
+        });
+
+        $("#" + treeId).contextmenu({
+            delegate: "span.fancytree-title",
+            menu: [
+                { title: "勾选", cmd: "selectNode", uiIcon: "ui-icon-check" },
+                { title: "取消勾选", cmd: "deselectNode", uiIcon: "ui-icon-close" },
+                { title: "----" },
+                { title: "全选", cmd: "selectAll", uiIcon: "ui-icon-check" },
+                { title: "取消全选", cmd: "deselectAll", uiIcon: "ui-icon-close" }
+            ],
+            beforeOpen: function (event, ui) {
+                var node = $.ui.fancytree.getNode(ui.target);
+                $("#" + treeId).contextmenu("enableEntry", "selectNode", !node.selected);
+                $("#" + treeId).contextmenu("enableEntry", "deselectNode", node.selected);
+                node.setActive();
+            },
+            select: function (event, ui) {
+                var that = this;
+                // delay the event, so the menu can close and the click event does
+                // not interfere with the edit control
+                setTimeout(function () {
+                    $(that).trigger("nodeCommand", { cmd: ui.cmd });
+                }, 100);
+            }
+        });
+    };
+
+    var saveSuccessed = function (result) {
+        app.endLoading();
+        if (result.Result) {
+            if (successCallback) {
+                successCallback();
+            }
+        } else {
+            app.showError(result.Message);
+        }
+    };
+
+    var validateData = function () {
+        var isValid = app.verifyInput();
+        if (isValid) {
+            app.startLoading();
+        }
+        return isValid;
+    };
+
+    var saveInfo = function (callback) {
+        successCallback = callback;
+        var selectedMenuIds = getSelectedIds("treeMenu");
+        var selectedFuncIds = getSelectedIds("treeFunc");
+
+        $("#hidMenu").val(JSON.stringify(selectedMenuIds));
+        $("#hidFunc").val(JSON.stringify(selectedFuncIds));
+        $("form").submit();
+    };
+
+    var getSelectedIds = function (treeId) {
+        var list = [];
+        var selectedNodes = $("#" + treeId).fancytree("getTree").getSelectedNodes();
+        for (var i = 0; i < selectedNodes.length; i++) {
+            list.push(selectedNodes[i].data.id);
+        }
+        return list;
+    };
+</script>
+

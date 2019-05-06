@@ -1,0 +1,233 @@
+﻿@using Console
+@using Console.Util
+@{
+    ViewBag.Title = "武汉国土征信数据服务";
+    Layout = "~/Views/Shared/_Toplayout.cshtml";
+}
+<link href="~/Content/css/mainpage.css" rel="stylesheet" />
+<script src="~/Content/js/modernizr.js"></script>
+ <script src="~/Content/js/app.js"></script>
+<style>
+    .one-bar {
+        line-height: 50px;
+    }
+
+        .one-bar i {
+            margin: 0 10px 0 5px;
+            width: 18px;
+            display: inline-block;
+        }
+        .logo{
+            color:#fff;
+            font-size:26px;
+            line-height:58px;
+            left:16px;
+            position:relative;
+        }
+</style>
+<div>
+    <header>
+        <div class="top_nav">
+            <div class="main_nav">
+                <div class="nav_left">
+                    <span class="logo" style="cursor: pointer" onclick="showHomePage()" title="国土征信数据服务">国土征信数据服务</span>
+                </div>
+                <div class="nav_right">
+                    <a><i class="headportraitLittle"></i><span class="username">@CacheUtil.LoginUser.LoginName</span><span id="show_msg"></span></a>
+                    <a id="modifyPassword" onclick="changePassword()"><i class="icon-changepassword"></i>修改密码</a>
+                    <a onclick="logout()"><i class="icon-exit"></i>退出</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </header>
+    <div>
+ @*       <div class="m-leftNav">
+            <div>
+                
+                <div class="m-personInforight">
+                    <p></p>
+                    <p>待去掉</p>
+                </div>
+            </div>
+        </div>*@
+        <nav class="m-nav-bar">
+            <ul>
+                @{
+                    var menus = CacheUtil.SerializedLimitedMenus.Where(x => x.Children.Any()).ToList();
+                    foreach (var menu in menus)
+                    {
+                        <li class="@(menus.IndexOf(menu) == 0 ? "sel" : "")">
+                            <a class="one-bar"><i class="@menu.IconClass"></i>@menu.Name</a>
+                            @if (menu.Children.Any())
+                            {
+                                <ul class="two-bar">
+                                    @{
+                                foreach (var childMenu in menu.Children)
+                                {
+                                    <li class="two-bar-li">
+                                        @if (childMenu.Children.Any())
+                                        {
+                                            <a class="hasMore">@childMenu.Name </a>
+                                            <ul class="three-bar">
+                                                @{
+                                            foreach (var grandSonMenu in childMenu.Children)
+                                            {
+                                                if (string.IsNullOrEmpty(grandSonMenu.Url))
+                                                {
+                                                    <li><a href="#">@grandSonMenu.Name</a> </li>
+                                                }
+                                                else
+                                                {
+                                                    <li><a onclick="@(string.Format("addTab('{0}','{1}','{2}')", grandSonMenu.Id, grandSonMenu.Name, grandSonMenu.Url))">@grandSonMenu.Name</a> </li>
+                                                }
+                                            }
+                                                }
+
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="@(string.Format("addTab('{0}','{1}','{2}')", childMenu.Id, childMenu.Name, childMenu.Url))">@childMenu.Name</a>
+                                        }
+
+                                    </li>
+                                }
+                                    }
+                                </ul>
+                            }
+                        </li>
+                    }
+                }
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="workspace">
+    <div class="layui-tab layui-tab-card" lay-allowclose="true" lay-filter="mainTab">
+        <ul class="layui-tab-title"></ul>
+        <div class="layui-tab-content"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    //弹出框
+    $(document).ready(function () {
+        setHeight();
+        element = layui.element;
+        element.init();
+        showHomePage();
+
+        $(".m-nav-bar button").click(function () {
+            $("body").toggleClass("menu_mini");
+        });
+
+        $(".m-nav-bar > ul > li").click(function (e) {
+            $(this).toggleClass("sel").siblings('li').removeClass("sel");
+            e.stopPropagation();
+        });
+
+        $(".two-bar > li > a").click(function (e) {
+            $(this).toggleClass("active").parent().siblings().children().removeClass("active");
+            $(this).siblings(".three-bar").toggle(300).parent().siblings().children('.three-bar').hide(300);
+            e.stopPropagation();
+        });
+
+        $(".three-bar > li > a").click(function (e) {
+            $(this).parent().addClass('threebarSelected').siblings().removeClass('threebarSelected');
+            e.stopPropagation();
+        });
+
+        window.onresize = function () {
+            setHeight();
+            var screenWidth = document.documentElement.clientWidth;
+            if (screenWidth < 960) {
+                $("body").addClass("menu_mini");
+            }
+        };
+
+        //防止页面后退
+        history.pushState(null, null, document.URL);
+        window.addEventListener('popstate',
+            function () {
+                history.pushState(null, null, document.URL);
+            });
+
+
+    });
+
+    var iframeHeight;
+    var element;
+    var topMenu = {};
+    var addTab = function (id, title, url) {
+        if (!isTabExists(id)) {
+            url = url || "/Menu/Empty";
+            app.startLoading();
+            element.tabAdd("mainTab", {
+                title: title,
+                id: id,
+                content: "<iframe class='main-tab' style=\"height:" + iframeHeight + "px;\" src=\"" + url + "\" onload=\"tabCreated()\"></iframe>"
+            });
+        }
+        element.tabChange("mainTab", id);
+        setTimeout(function () {
+            $(".layui-nav-child .layui-this").each(function () {
+                $(this).removeClass("layui-this");
+            });
+        }, 100);
+    };
+
+    var tabCreated = function () {
+        app.endLoading();
+    };
+
+    var closeTab = function (tabId) {
+        if (tabId == "homepage") return;
+        element.tabDelete("mainTab", tabId);
+    };
+
+    var isTabExists = function (id) {
+        return $(".layui-tab li[lay-id='" + id + "']").length > 0;
+    };
+
+    var logout = function () {
+        layer.confirm("您确定要注销登录？", {
+            btn: ["注销", "取消"],
+            title: "提示"
+        }, function () {
+            location.href = "@Url.Action("Login")";
+        });
+    };
+
+    var showHomePage = function () {
+        addTab("homepage", "首页", "/Home");
+    };
+
+    var setHeight = function () {
+        var screenHeight = document.documentElement.clientHeight;
+        iframeHeight = screenHeight - 100;
+        $("iframe.main-tab").each(function () {
+            $(this).height(iframeHeight);
+        });
+        $(".m-nav-bar").height(screenHeight - 56);
+    };
+
+    var changePassword = function () {
+        top.layer.open({
+            type: 2,
+            area: ["550px", "350px"],
+            fixed: false,
+            title: "修改密码",
+            content: "@Url.Action("ChangePassword")",
+            btn: ["确定", "取消"],
+            yes: function (index, la) {
+                top.window[la.find("iframe")[0]["name"]].saveInfo(function () {
+                    top.layer.close(index);
+                    App.showSuccess("密码已修改！");
+                });
+                return false;
+            }
+        });
+    };
+</script>

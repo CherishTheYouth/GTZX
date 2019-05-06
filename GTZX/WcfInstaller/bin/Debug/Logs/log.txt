@@ -1,0 +1,30 @@
+2018/11/1 8:50:04 [Error] 值不能为 null。
+参数名: path 
+   在 System.IO.Directory.GetDirectoryRoot(String path)
+   在 WcfService.FileService.GetFullName(String path, Boolean validateExist)
+   在 WcfService.FileService.UploadFile(String path, Int64 offset, Byte[] bufferBytes)
+2018/11/1 8:50:44 [Error] 值不能为 null。
+参数名: path 
+   在 System.IO.Directory.GetDirectoryRoot(String path)
+   在 WcfService.FileService.GetFullName(String path, Boolean validateExist)
+   在 WcfService.FileService.UploadFile(String path, Int64 offset, Byte[] bufferBytes)
+2018/11/1 8:50:49 [Error] 值不能为 null。
+参数名: path 
+   在 System.IO.Directory.GetDirectoryRoot(String path)
+   在 WcfService.FileService.GetFullName(String path, Boolean validateExist)
+   在 WcfService.FileService.UploadFile(String path, Int64 offset, Byte[] bufferBytes)
+2018/11/1 8:51:44 [Error] 值不能为 null。
+参数名: path 
+   在 System.IO.Directory.GetDirectoryRoot(String path)
+   在 WcfService.FileService.GetFullName(String path, Boolean validateExist)
+   在 WcfService.FileService.UploadFile(String path, Int64 offset, Byte[] bufferBytes)
+2018/11/1 8:51:47 [Error] 值不能为 null。
+参数名: path 
+   在 System.IO.Directory.GetDirectoryRoot(String path)
+   在 WcfService.FileService.GetFullName(String path, Boolean validateExist)
+   在 WcfService.FileService.UploadFile(String path, Int64 offset, Byte[] bufferBytes)
+2018/11/1 8:51:58 [Error] 值不能为 null。
+参数名: path 
+   在 System.IO.Directory.GetDirectoryRoot(String path)
+   在 WcfService.FileService.GetFullName(String path, Boolean validateExist)
+   在 WcfService.FileService.UploadFile(String path, Int64 offset, Byte[] bufferBytes)

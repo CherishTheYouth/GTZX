@@ -1,0 +1,32 @@
+-- 安装entity framework
+Install-Package EntityFramework
+
+-- 启用数据库迁移，适用于DBContext类在启动项目内时
+Enable-Migrations
+
+-- 启用数据库迁移，适用于DBContext类不在启动项目内时，各参数说明如下：
+-- ContextTypeName：项目继承自DBContext的类名字
+-- ProjectName：存放DBContext类的项目名称
+-- StartUpProjectName：解决方案中启动项目的名称，作用是调用该项目下的连接字符串
+-- EnableAutomaticMigrations：开启自动迁移
+-- ConnectionStringName：连接字符串名称
+Enable-Migrations -ContextTypeName "ORM.MyDbContext" -ProjectName "ORM" -StartUpProjectName "Console" -ConnectionStringName "SqlServerConnectionString" -Verbose
+
+-- 创建初始化迁移
+Add-Migration InitialCreate
+
+-- 更新数据库到最新迁移，-Verbose表示显示执行的脚本
+Update-Database -Verbose
+
+-- 创建迁移的sql语句，参数：–SourceMigration 源迁移，–TargetMigration 目标迁移，两个参数均是选填
+-- –SourceMigration未指定时默认已应用的最近迁移，–TargetMigration未指定时默认为未应用的最新迁移
+Update-Database -script –SourceMigration:xxx –TargetMigration:xxx
+
+-- 新建迁移，xxx为迁移名称（migration文件夹下会自动生成名称类似201309201643300_xxx.cs的类）
+Add-Migration xxx
+
+-- 回滚到指定的迁移
+Update-Database –TargetMigration:xxx
+
+
+OrderQuery

@@ -1,0 +1,623 @@
+﻿@font-face {
+    font-family: 'icomoon';
+    src: url('../fonts/icomoon.eot?9982gu');
+    src: url('../fonts/icomoon.eot?9982gu#iefix') format('embedded-opentype'), url('../fonts/icomoon.ttf?9982gu') format('truetype'), url('../fonts/icomoon.woff?9982gu') format('woff'), url('../fonts/icomoon.svg?9982gu#icomoon') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+    font-family: 'icomoon' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    padding: 0 4px;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.icon-set:before {
+    content: "\e900";
+}
+
+.icon-account:before {
+    content: "\e901";
+}
+
+.icon-Accounting:before {
+    content: "\e902";
+}
+
+.icon-add:before {
+    content: "\e903";
+}
+
+.icon-arrangePipe:before {
+    content: "\e904";
+}
+
+.icon-assembly:before {
+    content: "\e905";
+}
+
+.icon-bom:before {
+    content: "\e906";
+}
+
+.icon-borrowingDetails:before {
+    content: "\e907";
+}
+
+.icon-candidatePipe:before {
+    content: "\e908";
+}
+
+.icon-capabilityMaintenance:before {
+    content: "\e909";
+}
+
+.icon-changeInformation:before {
+    content: "\e90a";
+}
+
+.icon-classificationTree:before {
+    content: "\e90b";
+}
+
+.icon-complete:before {
+    content: "\e90c";
+}
+
+.icon-configurationRate:before {
+    content: "\e90d";
+}
+
+.icon-consolidatedStatement:before {
+    content: "\e90e";
+}
+
+.icon-count:before {
+    content: "\e90f";
+}
+
+.icon-dailyReport:before {
+    content: "\e910";
+}
+
+.icon-delete:before {
+    content: "\e911";
+}
+
+.icon-deselect:before {
+    content: "\e912";
+}
+
+.icon-detailInformation:before {
+    content: "\e913";
+}
+
+.icon-detailList:before {
+    content: "\e914";
+}
+
+.icon-details:before {
+    content: "\e915";
+}
+
+.icon-dropDown:before {
+    content: "\e916";
+}
+
+.icon-edit:before {
+    content: "\e917";
+}
+
+.icon-elbow:before {
+    content: "\e918";
+}
+
+.icon-entrusted:before {
+    content: "\e919";
+}
+
+.icon-Feeding:before {
+    content: "\e91b";
+}
+
+.icon-finishedProduct:before {
+    content: "\e91c";
+}
+
+.icon-fixedhours:before {
+    content: "\e91d";
+}
+
+.icon-fold:before {
+    content: "\e91e";
+}
+
+.icon-generalReport:before {
+    content: "\e91f";
+}
+
+.icon-handheldState:before {
+    content: "\e920";
+}
+
+.icon-heldPlan:before {
+    content: "\e921";
+}
+
+.icon-heldTransferState:before {
+    content: "\e922";
+}
+
+.icon-hoursStatistics:before {
+    content: "\e923";
+}
+
+.icon-inProduction:before {
+    content: "\e924";
+}
+
+.icon-installTray:before {
+    content: "\e925";
+}
+
+.icon-integratedQuery:before {
+    content: "\e926";
+}
+
+.icon-issue:before {
+    content: "\e927";
+}
+
+.icon-issueResults:before {
+    content: "\e928";
+}
+
+.icon-largeDiameter:before {
+    content: "\e929";
+}
+
+.icon-maintained:before {
+    content: "\e92b";
+}
+
+.icon-manufacturingTray:before {
+    content: "\e92c";
+}
+
+.icon-Material:before {
+    content: "\e92d";
+}
+
+.icon-materialDetails:before {
+    content: "\e92e";
+}
+
+.icon-materialPreparation:before {
+    content: "\e930";
+}
+
+.icon-materialQuota:before {
+    content: "\e931";
+}
+
+.icon-measuredQuantity:before {
+    content: "\e932";
+}
+
+.icon-mediumDiameter:before {
+    content: "\e933";
+}
+
+.icon-monthlyCompletion:before {
+    content: "\e934";
+}
+
+.icon-monthPlanning:before {
+    content: "\e935";
+}
+
+.icon-more:before {
+    content: "\e936";
+}
+
+.icon-nietoMonitor:before {
+    content: "\e938";
+}
+
+.icon-notAccount:before {
+    content: "\e939";
+}
+
+.icon-orderDetails:before {
+    content: "\e93a";
+}
+
+.icon-palletMaintenance:before {
+    content: "\e93b";
+}
+
+.icon-pipeDetail:before {
+    content: "\e93c";
+}
+
+.icon-pipeFittings:before {
+    content: "\e93d";
+}
+
+.icon-pipeInformation:before {
+    content: "\e93e";
+}
+
+.icon-planImplementation:before {
+    content: "\e93f";
+}
+
+.icon-plus:before {
+    content: "\e940";
+}
+
+.icon-productFittings:before {
+    content: "\e944";
+}
+
+.icon-productionMonitor:before {
+    content: "\e945";
+}
+
+.icon-proofing:before {
+    content: "\e947";
+}
+
+.icon-published:before {
+    content: "\e948";
+}
+
+.icon-pullUp:before {
+    content: "\e949";
+}
+
+.icon-ratedWorkinghours:before {
+    content: "\e94a";
+}
+
+.icon-refresh:before {
+    content: "\e94b";
+}
+
+.icon-remindersSearch:before {
+    content: "\e94c";
+}
+
+.icon-resultDetails:before {
+    content: "\e94d";
+}
+
+.icon-returnMissing:before {
+    content: "\e94e";
+}
+
+.icon-saveResults:before {
+    content: "\e94f";
+}
+
+.icon-schoolManagement:before {
+    content: "\e950";
+}
+
+.icon-select:before {
+    content: "\e951";
+}
+
+.icon-selectedPipe:before {
+    content: "\e952";
+}
+
+.icon-setUp:before {
+    content: "\e953";
+}
+
+.icon-single-productReport:before {
+    content: "\e954";
+}
+
+.icon-smallDiameter:before {
+    content: "\e955";
+}
+
+.icon-specialTube:before {
+    content: "\e956";
+}
+
+.icon-standardMaintenance:before {
+    content: "\e957";
+}
+
+.icon-startScheduling:before {
+    content: "\e958";
+}
+
+.icon-stateMonitoring:before {
+    content: "\e959";
+}
+
+.icon-statisticalResults:before {
+    content: "\e95a";
+}
+
+.icon-summary:before {
+    content: "\e95b";
+}
+
+.icon-summaryInformation:before {
+    content: "\e95c";
+}
+
+.icon-supportList:before {
+    content: "\e95d";
+}
+
+.icon-supportSearch:before {
+    content: "\e95e";
+}
+
+.icon-trayDetails:before {
+    content: "\e95f";
+}
+
+.icon-trayRelease:before {
+    content: "\e960";
+}
+
+.icon-undeterminedQuantity:before {
+    content: "\e961";
+}
+
+.icon-unfinish:before {
+    content: "\e962";
+}
+
+.icon-unfinishedpipe:before {
+    content: "\e963";
+}
+
+.icon-unfold:before {
+    content: "\e964";
+}
+
+.icon-unmaintained:before {
+    content: "\e965";
+}
+
+.icon-updateAllNodes:before {
+    content: "\e966";
+}
+
+.icon-updateNodes:before {
+    content: "\e967";
+}
+
+.icon-utilizationMaintenance:before {
+    content: "\e968";
+}
+
+.icon-welding:before {
+    content: "\e969";
+}
+
+.icon-workshopAccount:before {
+    content: "\e96a";
+}
+
+.icon-yieldQuery:before {
+    content: "\e96b";
+}
+
+.icon-all:before {
+    content: "\e96c";
+}
+
+.icon-AlreadyHandover:before {
+    content: "\e96d";
+}
+
+.icon-alreadyissued:before {
+    content: "\e96e";
+}
+
+.icon-changepassword:before {
+    content: "\e96f";
+}
+
+.icon-close:before {
+    content: "\e970";
+}
+
+.icon-close_hover:before {
+    content: "\e971";
+}
+
+.icon-collectemanger:before {
+    content: "\e972";
+}
+
+.icon-completed:before {
+    content: "\e973";
+}
+
+.icon-date:before {
+    content: "\e974";
+}
+
+.icon-delivery:before {
+    content: "\e975";
+}
+
+.icon-deliveryplan:before {
+    content: "\e976";
+}
+
+.icon-deliverystatistic:before {
+    content: "\e977";
+}
+
+.icon-deliveryunit:before {
+    content: "\e978";
+}
+
+.icon-deselect2:before {
+    content: "\e979";
+}
+
+.icon-dropDown2:before {
+    content: "\e97a";
+}
+
+.icon-exit:before {
+    content: "\e97b";
+}
+
+.icon-export:before {
+    content: "\e97c";
+}
+
+.icon-help:before {
+    content: "\e97d";
+}
+
+.icon-import:before {
+    content: "\e97e";
+}
+
+.icon-issued:before {
+    content: "\e97f";
+}
+
+.icon-issuedtwo:before {
+    content: "\e980";
+}
+
+.icon-jobshop:before {
+    content: "\e981";
+}
+
+.icon-message:before {
+    content: "\e982";
+}
+
+.icon-monthproduct:before {
+    content: "\e983";
+}
+
+.icon-no:before {
+    content: "\e984";
+}
+
+.icon-notHandover:before {
+    content: "\e985";
+}
+
+.icon-notissued:before {
+    content: "\e986";
+}
+
+.icon-outerpack:before {
+    content: "\e987";
+}
+
+.icon-prepare:before {
+    content: "\e988";
+}
+
+.icon-productmanger:before {
+    content: "\e989";
+}
+
+.icon-pullUp2:before {
+    content: "\e98a";
+}
+
+.icon-qualitymanger:before {
+    content: "\e98b";
+}
+
+.icon-querycondition:before {
+    content: "\e98c";
+}
+
+.icon-quotamanger:before {
+    content: "\e98d";
+}
+
+.icon-returnMissing2:before {
+    content: "\e98e";
+}
+
+.icon-select2:before {
+    content: "\e98f";
+}
+
+.icon-standard:before {
+    content: "\e990";
+}
+
+.icon-statestatistics:before {
+    content: "\e991";
+}
+
+.icon-style:before {
+    content: "\e992";
+}
+
+.icon-triangledown:before {
+    content: "\e993";
+}
+
+.icon-triangleup:before {
+    content: "\e994";
+}
+
+.icon-unfinished:before {
+    content: "\e995";
+}
+
+.icon-unkown:before {
+    content: "\e996";
+}
+
+.icon-unstandard:before {
+    content: "\e997";
+}
+
+.icon-upload:before {
+    content: "\e998";
+}
+
+.icon-print:before {
+    content: "\e999";
+}
+
+.icon-send:before {
+    content: "\e99a";
+}
+
+.icon-scanning:before {
+    content: "\e99b";
+}
+
+.icon-unkown2:before {
+    content: "\e99c";
+}
+
+.icon-branch:before {
+    content: "\e99d";
+}
+
+.icon-splicing:before {
+    content: "\e99e";
+}

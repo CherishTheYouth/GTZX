@@ -1,0 +1,38 @@
+﻿@using System.Data
+@model dynamic
+
+@{
+    ViewBag.Title = "首页";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+<link href="~/Content/css/grid.css" rel="stylesheet" />
+<style type="text/css">
+    .container-fluid {
+        padding: 0;
+    }
+</style>
+<form class="layui-form">
+    @*<div class="layui-form-item">
+        这里是首页，要看之前的示例
+        <a style="color: #1e90ff; cursor: pointer" onclick=" showDemo() ">点这里</a>
+    </div>*@
+    
+</form>
+<script>
+    var form;
+    var element;
+    var laypage;
+    $(document).ready(function () {
+        form = layui.form;
+        form.render();
+
+    });
+</script>
+
+<script>
+    var showDemo = function () {
+        if (parent && parent.addTab) {
+            parent.addTab("tab-demo", "示例", "@Url.Action("Demo")");
+        }
+    };
+</script>

@@ -1,0 +1,237 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "功能管理";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+<link href="~/Content/fancytree/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/fancytree/skin-win8/ui.fancytree.css" rel="stylesheet" />
+<script src="~/Content/fancytree/jquery-ui.min.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.table.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.dnd.js"></script>
+<script src="~/Content/fancytree/jquery.ui-contextmenu.min.js"></script>
+<div>
+    <input type="button" class="layui-btn layui-btn-small layui-btn-primary" value="刷新功能" onclick=" refreshData() " />
+    <input type="button" class="layui-btn layui-btn-small layui-btn-primary" value="全部展开/折叠" onclick=" collapseOrExpand() " />
+    <input type="button" class="layui-btn layui-btn-small layui-btn-normal" value="新增顶级功能" onclick=" addTopFunc() " />
+</div>
+<div>
+    <table id="tree" class="layui-table">
+        <colgroup>
+            <col style="width: 30%">
+            <col style="width: 20%">
+            <col style="width: 50%">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>功能名称</th>
+                <th>功能编码</th>
+                <th>备注</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    var isExpanded = false;
+
+    var collapseOrExpand = function () {
+        isExpanded = !isExpanded;
+        $("#tree").fancytree("getTree").visit(function (node) {
+            node.setExpanded(isExpanded);
+        });
+    };
+
+    var handingNode = { node: null, cmd: null };
+    var refreshItem = function (data) {
+        if (handingNode.cmd === "edit" && handingNode.node) {
+            handingNode.node.data = data;
+            handingNode.node.render(true);
+            handingNode.node.setTitle(data.title);
+        }
+        if (handingNode.cmd === "add") {
+            if (!handingNode.node) {
+                handingNode.node = $("#tree").fancytree("getRootNode");
+            }
+            handingNode.node.addNode(data);
+            handingNode.node.setExpanded(true);
+        }
+    };
+
+    var treeSource = { url: "@Url.Action("GetList")" };
+    var refreshData = function () {
+        $("#tree").fancytree("getTree").reload(treeSource);
+        isExpanded = false;
+    };
+
+    var addTopFunc = function () {
+        handingNode = { node: null, cmd: "add" };
+        addFunc();
+    };
+
+    var addFunc = function (parentId) {
+        app.openWindow({
+            width: 600,
+            height: 350,
+            title: "新增功能",
+            url: "@Url.Action("Modify")?parentId=" + parentId,
+            btn: ["确定", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.saveInfo(function (data) {
+                        refreshItem(data);
+                        app.closeWindow(index, true);
+                        app.showSuccess("新增成功！");
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var modifyFunc = function (id) {
+        app.openWindow({
+            width: 600,
+            height: 350,
+            title: "编辑功能",
+            url: "@Url.Action("Modify")?id=" + id,
+            btn: ["保存", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.saveInfo(function (data) {
+                        refreshItem(data);
+                        app.closeWindow(index, true);
+                        app.showSuccess("保存成功！");
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    $(function () {
+        $("#tree").fancytree({
+            checkbox: false,
+            titlesTabbable: true,     // Add all node titles to TAB chain
+            quicksearch: true,        // Jump to nodes when pressing first character
+            // source: SOURCE,
+            source: treeSource,
+
+            extensions: ["dnd", "table"],
+
+            dnd: {
+                preventVoidMoves: true,
+                preventRecursiveMoves: true,
+                autoExpandMS: 400,
+                dragStart: function () {
+                    return true;
+                },
+                dragEnter: function () {
+                    return true;
+                },
+                dragDrop: function (node, data) {
+                    app.invokeService({
+                        url: "@Url.Action("DragFunc")",
+                        data: {
+                            sourceId: data.otherNode.data.id,
+                            targetId: node.data.id,
+                            hitMode: data.hitMode
+                        },
+                        success: function (d) {
+                            if (d.Result) {
+                                data.otherNode.moveTo(node, data.hitMode);
+                            } else {
+                                app.showError(d.Message);
+                            }
+                        }
+                    });
+                }
+            },
+            table: {
+                indentation: 20,
+                nodeColumnIdx: 0,
+                checkboxColumnIdx: 0
+            },
+            gridnav: {
+                autofocusInput: false,
+                handleCursorKeys: true
+            },
+            renderColumns: function (event, data) {
+                var node = data.node;
+                var tdList = $(node.tr).find(">td");
+                tdList.eq(1).html(node.data.code);
+                tdList.eq(2).html(node.data.remark);
+            }
+        }).on("nodeCommand", function (event, data) {
+            var tree = $(this).fancytree("getTree");
+            var node = tree.getActiveNode();
+
+            switch (data.cmd) {
+                case "edit":
+                    modifyFunc(node.data.id);
+                    handingNode = { node: node, cmd: data.cmd };
+                    break;
+                case "delete":
+                    var tip = "您确定要删除该功能？";
+                    var success = function (d) {
+                        if (d.Result) {
+                            app.showSuccess("删除成功！");
+                            node.remove();
+                        } else {
+                            app.showError(d.Message);
+                        }
+                    };
+                    top.layer.confirm(tip, {
+                        btn: ["确定删除", "取消"],
+                        title: "提示"
+                    }, function () {
+                        app.invokeService({
+                            url: "@Url.Action("RemoveFunc")?id=" + node.data.id,
+                            success: success
+                        });
+                    });
+                    break;
+                case "add":
+                    addFunc(node.data.id);
+                    handingNode = { node: node, cmd: data.cmd };
+                    break;
+                default:
+                    app.showWarning("Unhandled command: " + data.cmd);
+                    return;
+            }
+        });
+
+        $("#tree").contextmenu({
+            delegate: "tbody tr",
+            menu: [
+                { title: "编辑", cmd: "edit", uiIcon: "ui-icon-pencil" },
+                { title: "删除", cmd: "delete", uiIcon: "ui-icon-trash" },
+                { title: "----" },
+                { title: "新增子功能", cmd: "add", uiIcon: "ui-icon-plus" }
+            ],
+            beforeOpen: function (event, ui) {
+                var node = $.ui.fancytree.getNode(ui.target);
+                node.setActive();
+            },
+            select: function (event, ui) {
+                var that = this;
+                // delay the event, so the menu can close and the click event does
+                // not interfere with the edit control
+                setTimeout(function () {
+                    $(that).trigger("nodeCommand", { cmd: ui.cmd });
+                }, 100);
+            }
+        });
+    });
+</script>
+
+
+

@@ -1,0 +1,147 @@
+﻿@using Modules
+@using ORM
+@model User
+
+@{
+    ViewBag.Title = "新增/编辑用户";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+
+@using (Ajax.BeginForm("SaveUser", new { }, new AjaxOptions { HttpMethod = "Post", OnSuccess = "saveSuccessed", OnBegin = "validateData" }, new { @class = "layui-form" }))
+{
+    <input type="hidden" name="Id" id="hidId" value="@Model.Id" />
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">基本信息</li>
+            <li>用户角色</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="layui-form-item">
+                    @using (var context = new MyDbContext())
+                    {
+                        var employee = context.Employees.Find(Model.Id);
+                        <div class="layui-inline">
+                            <label class="layui-form-label required">姓名</label>
+                            <div class="layui-input-inline">
+                                <input id="tbName" type="text" disabled="disabled" placeholder="选择现有人员" class="layui-input" value="@((employee ?? new Employee()).FullName)" />
+                            </div>
+                        </div>
+                        if (employee == null)
+                        {
+                            <div class="layui-inline">
+                                <input type="button" class="layui-btn layui-btn-primary layui-btn-small" value="绑定人员" onclick="getUser()" />
+                            </div>
+                        }
+                    }
+
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label required">登录名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="LoginName" lay-verify="required" autocomplete="false" class="layui-input" value="@Model.LoginName" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label required">密码</label>
+                    <div class="layui-input-inline">
+                        <input type="password" name="Password" lay-verify="required" autocomplete="false" class="layui-input" value="@Model.Password" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="IsEnable" title="启用" value="true" @(Model.IsEnable ? "checked='checked'" : string.Empty) />
+                        <input type="radio" name="IsEnable" title="禁用" value="false" @(!Model.IsEnable ? "checked='checked'" : string.Empty) />
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                @using (var context = new MyDbContext())
+                {
+                    var roles = context.Roles.OrderBy(x => x.CreateTime).ToList();
+                    var userRoles = context.UserRoles.Where(x => x.UserId == Model.Id).ToList();
+                    foreach (var role in roles)
+                    {
+                        <input type="checkbox" name="listRole" value="@role.Id" title="@role.Name" @(userRoles.Any(x => x.RoleId == role.Id) ? "checked='checked'" : "") />
+                    }
+                }
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="hidRole" name="roleIds" />
+}
+@*下面是两行用于测试权限控制的代码*@
+<input type="hidden" funccode="user-add" before="validateAddPermission" />
+<input type="hidden" funccode="user-edit" before="validateEditPermission" />
+
+<script>
+    var isExist = "@(new MyDbContext().Users.Find(Model.Id) != null)" === "True";
+    var validateAddPermission = function () {
+        return !isExist;
+    };
+
+    var validateEditPermission = function () {
+        return isExist;
+    };
+
+    var form;
+    var successCallback;
+    $(document).ready(function () {
+        form = layui.form;
+        form.render();
+    });
+
+    var getUser = function () {
+        app.openWindow({
+            width: 800,
+            height: 500,
+            title: "选择用户",
+            url: "@Url.Action("SelectUser","User")?allowMulti=false&validateUserExist=false&selectedList=" + $("#hidId").val(),
+            btn: ["确定", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.getSelectedItems(function (data) {
+                        if (data.length > 0) {
+                            var user = data[0];
+                            $("#hidId").val(user.id);
+                            $("#tbName").val(user.name);
+                        } else {
+                            $("#hidId").val("");
+                            $("#tbName").val("");
+                        }
+                        app.closeWindow(index, true);
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var saveSuccessed = function (result) {
+        app.endLoading();
+        if (result.Result) {
+            if (successCallback) {
+                successCallback();
+            }
+        } else {
+            app.showError(result.Message);
+        }
+    };
+
+    var validateData = function () {
+        var isValid = app.verifyInput();
+        if (isValid) {
+            app.startLoading();
+        }
+        return isValid;
+    };
+
+    var saveInfo = function (callback) {
+        successCallback = callback;
+        var selectedRoleIds = [];
+        $("#hidRole").val(JSON.stringify(selectedRoleIds));
+        $("form").submit();
+    };
+</script>

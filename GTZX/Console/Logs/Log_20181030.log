@@ -1,0 +1,5 @@
+2018-10-30 11:42:49,379 [10] ERROR Console - System.ComponentModel.Win32Exception (0x80004005): 找不到网络路径。
+2018-10-30 13:30:19,691 [10] ERROR Console - System.Net.Sockets.SocketException (0x80004005): 由于目标计算机积极拒绝，无法连接。 127.0.0.1:12345
+   在 System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   在 System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   在 System.ServiceModel.Channels.SocketConnectionInitiator.Connect(Uri uri, TimeSpan timeout)

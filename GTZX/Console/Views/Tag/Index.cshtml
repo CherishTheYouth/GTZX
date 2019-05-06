@@ -1,0 +1,230 @@
+﻿@using Modules
+@model Modules.TagType
+
+@{
+    ViewBag.Title = "标签管理";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+<link href="~/Content/fancytree/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/fancytree/skin-win8/ui.fancytree.css" rel="stylesheet" />
+<script src="~/Content/fancytree/jquery-ui.min.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.table.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.dnd.js"></script>
+<div>
+    <input type="button" class="layui-btn layui-btn-small layui-btn-normal" value="新增@(Model.Equals(TagType.Station)?"岗位":"标签")" onclick=" addTag() " />
+</div>
+<div>
+    <table id="tree" class="layui-table">
+        <colgroup>
+            <col style="width: 30%">
+            <col style="width: 50%">
+            <col style="width: 20%">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>名称</th>
+                <th>备注</th>
+                <th class="align-center">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td class="align-center">
+                    <i class="layui-icon table-operation" onclick=" modifyItem() " title="编辑">&#xe642;</i>
+                    <span class="table-operation-spliter">|</span>
+                    <i class="layui-icon table-operation" onclick=" selectUser() " title="设置用户">&#xe613;</i>
+                    <span class="table-operation-spliter">|</span>
+                    <i class="layui-icon table-operation" onclick=" removeItem() " title="删除">&#xe640;</i>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    var handingNode = { node: null, cmd: null };
+    var refreshItem = function (data) {
+        if (handingNode.cmd === "edit" && handingNode.node) {
+            handingNode.node.data = data;
+            handingNode.node.render(true);
+            handingNode.node.setTitle(data.title);
+        }
+        if (handingNode.cmd === "add") {
+            if (!handingNode.node) {
+                handingNode.node = $("#tree").fancytree("getRootNode");
+            }
+            handingNode.node.addNode(data);
+            handingNode.node.setExpanded(true);
+        }
+    };
+
+    var treeSource = { url: "@Url.Action("GetList",new {type = Model })" };
+    var refreshData = function () {
+        $("#tree").fancytree("getTree").reload(treeSource);
+    };
+
+    var tagTypeName = "@(Model.Equals(TagType.Station)?"岗位":"标签")";
+    var addTag = function () {
+        handingNode = { node: null, cmd: "add" };
+        app.openWindow({
+            width: 600,
+            height: 350,
+            title: "新增" + tagTypeName,
+            url: "@Url.Action("Modify", new { type = Model })",
+            btn: ["确定", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.saveInfo(function (data) {
+                        refreshItem(data);
+                        app.closeWindow(index, true);
+                        app.showSuccess("新增成功！");
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var modifyItem = function () {
+        var node = $("#tree").fancytree("getTree").getActiveNode();
+        handingNode = { node: node, cmd: "edit" };
+        var id = node.data.id;
+        app.openWindow({
+            width: 600,
+            height: 350,
+            title: "编辑" + tagTypeName,
+            url: "@Url.Action("Modify")?id=" + id,
+            btn: ["保存", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.saveInfo(function (data) {
+                        refreshItem(data);
+                        app.closeWindow(index, true);
+                        app.showSuccess("保存成功！");
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var removeItem = function () {
+        var node = $("#tree").fancytree("getTree").getActiveNode();
+        var id = node.data.id;
+        top.layer.confirm("您确定要删除该标签？", {
+            btn: ["确定删除", "取消"],
+            title: "提示"
+        }, function () {
+            app.invokeService({
+                url: "@Url.Action("RemoveTag")?id=" + id,
+                success: function () {
+                    node.remove();
+                    app.showSuccess("删除成功！");
+                }
+            });
+        });
+    };
+
+    var selectUser = function () {
+        var node = $("#tree").fancytree("getTree").getActiveNode();
+        var id = node.data.id;
+        app.openWindow({
+            width: 800,
+            height: 500,
+            title: "选择用户",
+            url: "@Url.Action("SelectUser")?tagId=" + id,
+            btn: ["确定", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.getSelectedItems(function (data) {
+                        var idList = [];
+                        for (var i = 0; i < data.length; i++) {
+                            idList.push((data[i].id));
+                        }
+                        app.invokeService({
+                            url: "@Url.Action("SetTagEmployees")?tagId=" + id,
+                            data: idList,
+                            success: function (d) {
+                                if (d.Result) {
+                                    app.closeWindow(index, true);
+                                    app.showSuccess("设置成功！");
+                                } else {
+                                    app.showError(d.Message);
+                                }
+                            }
+                        });
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    $(function () {
+        $("#tree").fancytree({
+            checkbox: false,
+            titlesTabbable: true,     // Add all node titles to TAB chain
+            quicksearch: true,        // Jump to nodes when pressing first character
+            // source: SOURCE,
+            source: treeSource,
+
+            extensions: ["dnd", "table"],
+
+            dnd: {
+                preventVoidMoves: true,
+                preventRecursiveMoves: true,
+                autoExpandMS: 400,
+                dragStart: function () {
+                    return true;
+                },
+                dragEnter: function (node, data) {
+                    return data.hitMode !== "over";
+                },
+                dragDrop: function (node, data) {
+                    if (data.hitMode === "over") return false;
+                    app.invokeService({
+                        url: "@Url.Action("DragTag")",
+                        data: {
+                            sourceId: data.otherNode.data.id,
+                            targetId: node.data.id,
+                            hitMode: data.hitMode
+                        },
+                        success: function (d) {
+                            if (d.Result) {
+                                data.otherNode.moveTo(node, data.hitMode);
+                            } else {
+                                app.showError(d.Message);
+                            }
+                        }
+                    });
+                }
+            },
+            table: {
+                indentation: 20,
+                nodeColumnIdx: 0,
+                checkboxColumnIdx: 0
+            },
+            gridnav: {
+                autofocusInput: false,
+                handleCursorKeys: true
+            },
+            renderColumns: function (event, data) {
+                var node = data.node;
+                var tdList = $(node.tr).find(">td");
+                tdList.eq(1).html(node.data.remark);
+            }
+        });
+    });
+</script>
+
+
+
+
+
+
+
+
+

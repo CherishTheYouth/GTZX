@@ -1,0 +1,139 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "用户管理";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+<div class="layui-inline">
+    <div class="layui-input-inline">
+        <input id="tbLoginName" type="text" class="layui-input" placeholder="登录名" />
+    </div>
+</div>
+<div funcCode="user" class="layui-inline">
+    <div class="layui-input-inline">
+        <input type="button" class="layui-btn layui-btn-primary" value="查询" onclick=" query() " />
+        <input type="button" class="layui-btn layui-btn-normal" funcCode="user-add" value="新增用户" onclick=" addItem() " />
+    </div>
+</div>
+<div>
+    <table id="tree" class="layui-table">
+        <colgroup>
+            <col style="width: 30%">
+            <col>
+            <col style="width: 280px">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>登录名</th>
+                <th>姓名</th>
+                <th>状态</th>
+                <th class="align-center">操作</th>
+            </tr>
+        </thead>
+        <tbody id="tBody">
+        </tbody>
+    </table>
+    <div id="divPage"></div>
+</div>
+<script id="template" type="text/html">
+    {{# layui.each(d,function(index,item){ }}
+    <tr>
+        <td>{{=item.LoginName}}
+        </td>
+        <td>{{=item.FullName}}
+        </td>
+        <td>{{=item.State}}
+        </td>
+        <td class="align-center">
+            <i class="layui-icon table-operation" onclick=" modifyItem('{{item.Id}}') " title="编辑">&#xe642;</i>
+            <span class="table-operation-spliter">|</span>
+            <i class="layui-icon table-operation" onclick=" removeItem('{{item.Id}}') " title="删除">&#xe640;</i>
+        </td>
+    </tr>
+    {{#});}}
+    {{# if(d.length == 0){}}
+        <div class="empty-table">暂无数据</div>
+    {{#}}}
+</script>
+
+<script>
+    $(document).ready(function () {
+        query();
+        app.tapEnter("#tbLoginName", query);
+    });
+
+    var condition;
+    var query = function () {
+        var page = (condition && condition.page) ? condition.page : 1;
+        condition = {
+            page: page,
+            loginName: $("#tbLoginName").val()
+        };
+        app.loadList("@Url.Action("GetList")", condition, loadData, "divPage");
+    };
+
+    var loadData = function (data) {
+        var tpl = $("#template").html();
+        layui.laytpl(tpl).render(data, function (html) {
+            $("#tBody").html(html);
+            window.handleForbiddenFuncs();
+        });
+    };
+
+    var addItem = function () {
+        app.openWindow({
+            width: 720,
+            height: 420,
+            title: "新增用户",
+            url: "@Url.Action("Modify")",
+            btn: ["确定", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.saveInfo(function () {
+                        query();
+                        app.closeWindow(index, true);
+                        app.showSuccess("新增成功！");
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var modifyItem = function (id) {
+        app.openWindow({
+            width: 720,
+            height: 420,
+            title: "编辑用户",
+            url: "@Url.Action("Modify")?id=" + id,
+            btn: ["保存", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.saveInfo(function () {
+                        query();
+                        app.closeWindow(index, true);
+                        app.showSuccess("保存成功！");
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var removeItem = function (id) {
+        top.layer.confirm("您确定要删除该用户？", {
+            btn: ["确定删除", "取消"],
+            title: "提示"
+        }, function () {
+            app.invokeService({
+                url: "@Url.Action("RomoveUser")?id=" + id,
+                success: function () {
+                    query();
+                    app.showSuccess("删除成功！");
+                }
+            });
+        });
+    };
+</script>
+

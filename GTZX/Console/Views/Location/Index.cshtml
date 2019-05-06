@@ -1,0 +1,154 @@
+﻿@model Guid
+
+@{
+    ViewBag.Title = "位置标注";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+<div class="layui-inline">
+    <div class="layui-input-inline">
+        <input type="button" class="layui-btn layui-btn-normal layui-btn-small" value="新增点" onclick=" addItem(0) " />
+        <input type="button" class="layui-btn layui-btn-normal layui-btn-small" value="新增线" onclick=" addItem(1) " />
+        <input type="button" class="layui-btn layui-btn-normal layui-btn-small" value="新增面" onclick=" addItem(2) " />
+    </div>
+</div>
+<div>
+    <table id="tree" class="layui-table">
+        <colgroup>
+            <col style="width: 50%">
+            <col>
+            <col style="width: 20%">
+            <col>
+            <col style="width: 280px">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>位置名称</th>
+                <th>标注类型</th>
+                <th class="align-center">操作</th>
+            </tr>
+        </thead>
+        <tbody id="tBody">
+        </tbody>
+    </table>
+    <div id="divPage"></div>
+</div>
+<script id="template" type="text/html">
+    {{# layui.each(d,function(index,item){ }}
+    <tr>
+        <td>{{=item.Name}}
+        </td>
+        <td>{{=item.Type}}
+        </td>
+        <td class="align-center">
+            <i class="icon-edit table-operation" onclick=" modifyItem('{{item.Id}}') " title="编辑"></i>
+            <span class="table-operation-spliter">|</span>
+            <i class="icon-delete table-operation" onclick=" removeItem('{{item.Id}}') " title="删除"></i>
+        </td>
+    </tr>
+    {{#});}}
+    {{# if(d.length == 0){}}
+        <div class="empty-table">暂无数据</div>
+    {{#}}}
+</script>
+
+<script>
+    $(document).ready(function () {
+        query();
+    });
+
+    var condition;
+    var query = function () {
+        var page = (condition && condition.page) ? condition.page : 1;
+        condition = {
+            page: page,
+            targetId: "@Model"
+        };
+        loadList("@Url.Action("GetList")", condition, loadData, "divPage");
+    };
+
+    var loadData = function (data) {
+        var tpl = $("#template").html();
+        layui.laytpl(tpl).render(data, function (html) {
+            $("#tBody").html(html);
+            window.handleForbiddenFuncs();
+        });
+    };
+
+    var addItem = function (type) {
+        top.layer.open({
+            type: 2,
+            area: ["800px", "500px"],
+            fixed: false, //不固定
+            title: "新增位置",
+            content: "@Url.Action("ModifyLocation")?type=" + type,
+            btn: ["提交", "取消"],
+            yes: function (index, la) {
+                var result = top.window[la.find("iframe")[0]["name"]].getResult();
+                var location = { Type: type, LocationDetail: JSON.stringify(result), TargetId: "@Model", Name: result.name };
+                ajax({
+                    url: "@Url.Action("SaveLocation")",
+                    data: location,
+                    success: function (d) {
+                        if (d.Result) {
+                            query();
+                            top.layer.close(index);
+                            top.showSuccess("新增成功！");
+                        } else {
+                            top.showError(d.Message);
+                        }
+                    }
+                });
+                return false;
+            }
+        });
+    };
+
+    var modifyItem = function (id) {
+        top.layer.open({
+            type: 2,
+            area: ["800px", "500px"],
+            fixed: false, //不固定
+            title: "编辑位置",
+            content: "@Url.Action("ModifyLocation")?id=" + id,
+            btn: ["保存", "取消"],
+            yes: function (index, la) {
+                var result = top.window[la.find("iframe")[0]["name"]].getResult();
+                if (result == null) {
+                    top.layer.close(index);
+                    removeItem(id);
+                } else {
+                    var location = { LocationDetail: JSON.stringify(result), Id: id, Name: result.name };
+                    ajax({
+                        url: "@Url.Action("SaveLocation")",
+                        data: location,
+                        success: function (d) {
+                            if (d.Result) {
+                                query();
+                                top.layer.close(index);
+                                top.showSuccess("保存成功！");
+                            } else {
+                                top.showError(d.Message);
+                            }
+                        }
+                    });
+                }
+                return false;
+            }
+        });
+    };
+
+    var removeItem = function (id) {
+        top.layer.confirm("您确定要删除该分布？", {
+            btn: ["确定删除", "取消"],
+            title: "提示"
+        }, function () {
+            ajax({
+                url: "@Url.Action("RemoveLocation")?id=" + id,
+                success: function () {
+                    query();
+                    top.showSuccess("删除成功！");
+                }
+            });
+        });
+    };
+</script>

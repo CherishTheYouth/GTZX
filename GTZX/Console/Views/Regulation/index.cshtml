@@ -1,0 +1,148 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "部门管理";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+<link href="~/Content/fancytree/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/fancytree/skin-win8/ui.fancytree.css" rel="stylesheet" />
+<script src="~/Content/fancytree/jquery-ui.min.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.table.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.dnd.js"></script>
+<script src="~/Content/fancytree/jquery.ui-contextmenu.min.js"></script>
+
+
+
+<div class="layui-inline">
+    <div class="layui-input-inline">
+        <input id="tbRegulationName" type="text" class="layui-input" placeholder="文件名称" />    
+    </div>
+    <div class="layui-input-inline">
+        <input id="tbRegulationNo" type="text" class="layui-input" placeholder="文件编号" />
+    </div>
+    <div class="layui-input-inline">
+        <input id="tbPublishDep" type="text" class="layui-input" placeholder="颁布单位" />
+    </div>
+    @*<div class="layui-input-inline">
+        <input id="tbPublishDate" type="text" class="layui-input" placeholder="颁布时间" />
+    </div>*@
+</div>
+
+<div funcCode="Regulation" class="layui-inline">
+    <div class="layui-input-inline">
+        <input type="button" class="layui-btn layui-btn-primary" value="查询" onclick="query() " />      
+    </div>
+    <div class="layui-input-inline">
+        <input type="button" class="layui-btn layui-btn-small layui-btn-normal" value="新增" onclick="javascript:window.location.href='@Url.Action("Modify")'; " />
+    </div>
+</div>
+
+<div>
+    <table id="tree" class="layui-table">
+        <colgroup>
+            <col style="width: 30%">
+            <col>
+            <col style="width: 280px">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>文件名称</th>
+                <th>文件编号</th>
+                <th>颁布单位</th>
+                <th>颁布日期</th>
+                <th class="align-center">操作</th>
+            </tr>
+        </thead>
+        <tbody id="tBody"></tbody>
+    </table>
+    <div id="divPage"></div>
+</div>
+
+<script id="template" type="text/html">
+    {{# layui.each(d,function(index,item){ }}
+    <tr>
+        <td>
+            {{=item.RegulationName}}
+        </td>
+        <td>
+            {{=item.RegulationNo}}
+        </td>
+        <td>
+            {{=item.PublishDep}}
+        </td>
+        <td>
+            {{=item.PublishDate}}
+        </td>
+
+        <td class="align-center">
+            <i class="layui-icon table-operation" onclick=" showItem('{{item.Id}}') " title="查看">&#xe615;</i>
+            <span class="table-operation-spliter">|</span>
+            <i class="layui-icon table-operation" onclick=" modifyItem('{{item.Id}}') " title="编辑">&#xe642;</i>
+            <span class="table-operation-spliter">|</span>
+            <i class="layui-icon table-operation" onclick=" removeItem('{{item.Id}}') " title="删除">&#xe640;</i>
+        </td>
+    </tr>
+    {{#});}}
+    {{# if(d.length == 0){}}
+    <div class="empty-table">暂无数据</div>
+    {{#}}}
+</script>
+
+@*<div>
+    <input type="button" class="layui-btn layui-btn-small layui-btn-normal" value="Ue提交" onclick="javascript:window.location.href='@Url.Action("UeDemo")'; " />
+</div>*@
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        query();
+        app.tapEnter("#tbRegulationName", query);
+        app.tapEnter("#tbRegulationNo", query);
+        app.tapEnter("#tbPublishDep", query);
+    });
+
+    var condition;
+    var loadData = function (data) {
+        var tpl = $("#template").html();
+        layui.laytpl(tpl).render(data, function (html) {
+            $("#tBody").html(html);
+            window.handleForbiddenFuncs();
+        });
+    };
+    var query = function () {
+        var page = (condition && condition.page) ? condition.page : 1;
+        condition = {
+            page: page,
+            regulationName: $("#tbRegulationName").val(),
+            regulationNo: $("#tbRegulationNo").val(),
+            publishDep: $("#tbPublishDep").val()
+        };
+        app.loadList("@Url.Action("GetList")", condition, loadData, "divPage");
+    }
+
+
+    var showItem = function (id) {
+        window.location.href = "@Url.Action("ShowRegulation")?id=" + id;
+    }
+
+    var modifyItem = function (id) {
+        window.location.href = "@Url.Action("Modify")?id=" + id;
+    };
+
+      var removeItem = function (id) {
+        top.layer.confirm("您确定要删除该文件吗？", {
+            btn: ["确定删除", "取消"],
+            title: "提示"
+        }, function () {
+            app.invokeService({
+                url: "@Url.Action("Remove")?id=" + id,
+                success: function () {
+                    query();
+                    app.showSuccess("删除成功！");
+                }
+            });
+        });
+    };
+</script>
+

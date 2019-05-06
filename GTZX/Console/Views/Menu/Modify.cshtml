@@ -1,0 +1,118 @@
+﻿@using Console.Util
+@model Modules.Menu
+
+@{
+    ViewBag.Title = "新增/编辑菜单";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+@using (Ajax.BeginForm("SaveMenu", new { Model.Id, Model.ParentId, Model.OrderNumber }, new AjaxOptions { HttpMethod = "Post", OnSuccess = "saveSuccessed", OnBegin = "validateData" }, new { @class = "layui-form" }))
+{
+    <div class="layui-form-item">
+        <label class="layui-form-label required">菜单名称</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Name" lay-verify="required" autocomplete="false" class="layui-input" value="@Model.Name"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">图标样式</label>
+            <div class="layui-input-inline" style="width: 350px">
+                <input type="text" name="IconClass"  autocomplete="false" class="layui-input" onchange="classChange(this.value)" value="@Model.IconClass"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <i id="iconPreview" class="@Model.IconClass"></i>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Url</label>
+        <div class="layui-input-block">
+            <textarea name="Url" class="layui-input" style="height: 80px">@Model.Url</textarea>
+        </div>
+    </div>
+}
+
+<script>
+    var successCallback;
+    var saveSuccessed = function (result) {
+        app.endLoading();
+        if (result.Result) {
+            if (successCallback) {
+                successCallback(result.Data);
+            }
+        } else {
+            app.showError(result.Message);
+        }
+    };
+
+    var validateData = function () {
+        var isValid = app.verifyInput();
+        if (isValid) {
+            app.startLoading();
+        }
+        return isValid;
+    };
+
+    var saveInfo = function (callback) {
+        successCallback = callback;
+        $("form").submit();
+    };
+
+    var setLocalImg = function (obj) {
+        var path = $(obj).attr("src");
+        $("#hidIconLocalUrl").val(path);
+        $("#imgLocal").attr("src", path);
+    };
+
+    var initIconMode = function () {
+        var mode = $("input[name='IconMode']:checked")[0].value;
+        $("#divLocal").hide();
+        $("#divRemote").hide();
+        $("#divUpload").hide();
+        switch (mode) {
+            case "0":
+                break;
+            case "1":
+                $("#divLocal").show();
+                break;
+            case "2":
+                $("#divRemote").show();
+                break;
+            case "3":
+                $("#divUpload").show();
+                break;
+        }
+    };
+
+    var remoteIconUrlChanged = function () {
+        var url = $("#tbRemote").val();
+        $("#hidIconRemoteUrl").val(url);
+        $("#imgRemote").attr("src", url);
+    };
+
+    $(document).ready(function () {
+        layui.form.render();
+
+        layui.form.on("radio(IconMode)", function () {
+            initIconMode();
+        });
+
+        initIconMode();
+
+        layui.upload.render({
+            elem: "#btnUploadIcon",
+            url: "@(ConfigUtil.GetApiUrl())/api/UploadFile?createShortcut=false&maxFileSize=102400&aspectRatio=1",
+            done: function (res) {
+                if (res.Result) {
+                    var id = res.Data[0].Id;
+                    $("#hidIconId").val(id);
+                    $("#imgUpload").attr("src", "@(ConfigUtil.GetApiUrl())/api/UploadFile/" + id + "?size=1");
+                } else {
+                    app.showError(res.Message);
+                }
+            }
+        });
+    });
+</script>
+

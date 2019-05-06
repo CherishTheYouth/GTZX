@@ -1,0 +1,100 @@
+﻿@using IBLL
+@using Modules
+@model User
+@{
+    ViewBag.Title = "人员信息维护";
+}
+@{
+    var employee = BLLContainer.Container.Resolve<IEmployeeService>().Find(Model.Id);
+    var department = BLLContainer.Container.Resolve<IDepartmentService>().Find(employee.DepartmentId);
+    var departmentName = department.Name;
+    while (department != null && department.ParentId.HasValue)
+    {
+        department = BLLContainer.Container.Resolve<IDepartmentService>().Find(department.ParentId.Value);
+        if (department != null)
+        {
+            departmentName = department.Name + " > " + departmentName;
+        }
+    }
+}
+<style>
+    input[readonly] {
+        border: none;
+    }
+</style>
+<form class="layui-form">
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" readonly="readonly" value="@Model.LoginName">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">部门</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" readonly="readonly" value="@departmentName">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" readonly="readonly" value="@employee.FullName">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">性别</label>
+        <div class="layui-input-block">
+            <input type="radio" name="Gender" value="0" title="男" @(employee.Gender.Equals(Gender.Male) ? "checked='checked'" : "")>
+            <input type="radio" name="Gender" value="1" title="女" @(employee.Gender.Equals(Gender.Female) ? "checked='checked'" : "")>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">身份证号</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" lay-verify="idCard" name="IdCard" value="@employee.IdCard" placeholder="选填">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">手机号</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" lay-verify="mobile" name="MobilePhone" value="@employee.MobilePhone" placeholder="选填">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">邮箱</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" lay-verify="email" name="Email" value="@employee.Email" placeholder="选填">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <input type="button" class="layui-btn" value="保存" onclick="saveInfo()" />
+        </div>
+    </div>
+</form>
+
+<script>
+    var saveInfo = function () {
+        if (!app.verifyInput()) return;
+        var obj = app.getFormJson("form");
+        app.invokeService({
+            url: "@Url.Action("SaveUser")",
+            data: {
+                employee: obj
+            },
+            success: function(data) {
+                if (data.Result) {
+                    app.showSuccess("保存成功！");
+                } else {
+                    app.showError(data.Message);
+                }
+            }
+        });
+    };
+
+    $(document).ready(function () {
+        layui.element.init();
+        layui.form.render();
+    });
+</script>

@@ -1,0 +1,255 @@
+﻿@using Helper.Extension
+@using Modules
+@model Dic?
+
+@{
+    ViewBag.Title = "字典管理";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+<link href="~/Content/fancytree/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/fancytree/skin-win8/ui.fancytree.css" rel="stylesheet" />
+<script src="~/Content/fancytree/jquery-ui.min.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.table.js"></script>
+<script src="~/Content/fancytree/src/jquery.fancytree.dnd.js"></script>
+<script src="~/Content/fancytree/jquery.ui-contextmenu.min.js"></script>
+<div>
+    字典：
+    <select id="selectDic" class="layui-select layui-input-mini" onchange="refreshData()">
+        @{
+          
+            var dic = typeof(Dic).GetEnumDictionary();
+            foreach (var key in dic.Keys)
+            {
+                if (!Model.HasValue || Model.Value.Equals(key))
+                {
+                    <option value="@key">@dic[key]</option>
+                }
+            }
+        }
+
+    </select>
+    <input type="button" class="layui-btn layui-btn-small layui-btn-primary" value="刷新" onclick=" refreshData() " />
+    <input type="button" class="layui-btn layui-btn-small layui-btn-primary" value="全部展开/折叠" onclick=" collapseOrExpand() " />
+    <input type="button" class="layui-btn layui-btn-small layui-btn-normal" value="新增顶级项" onclick=" addTopItem() " />
+</div>
+<div>
+    <table id="tree" class="layui-table">
+        <colgroup>
+            <col style="width: 40%">
+            <col style="width: 60%">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>细项名称</th>
+                <th>备注</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    var isExpanded = false;
+
+    var collapseOrExpand = function () {
+        isExpanded = !isExpanded;
+        $("#tree").fancytree("getTree").visit(function (node) {
+            node.setExpanded(isExpanded);
+        });
+    };
+
+    var handingNode = { node: null, cmd: null };
+    var refreshItem = function (data) {
+        if (handingNode.cmd === "edit" && handingNode.node) {
+            handingNode.node.data = data;
+            handingNode.node.render(true);
+            handingNode.node.setTitle(data.title);
+        }
+        if (handingNode.cmd === "add") {
+            if (!handingNode.node) {
+                handingNode.node = $("#tree").fancytree("getRootNode");
+            }
+            handingNode.node.addNode(data);
+            handingNode.node.setExpanded(true);
+        }
+    };
+
+    var getTreeSource = function () {
+        return { url: "@Url.Action("GetList")?dic=" + $("#selectDic").val() };
+    };
+
+    var refreshData = function () {
+        $("#tree").fancytree("getTree").reload(getTreeSource());
+        isExpanded = false;
+    };
+
+    var addTopItem = function () {
+        handingNode = { node: null, cmd: "add" };
+        addDicItem();
+    };
+
+    var addDicItem = function (parentId) {
+        var dic = $("#selectDic").val();
+        app.openWindow({
+            width: 500,
+            height: 320,
+            title: "新增字典细项",
+            url: "@Url.Action("Modify")?parentId=" + parentId + "&dic=" + dic,
+            btn: ["确定", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.saveInfo(function (data) {
+                        refreshItem(data);
+                        app.closeWindow(index, true);
+                        app.showSuccess("保存成功！");
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var modifyDicItem = function (id) {
+        app.openWindow({
+            width: 500,
+            height: 320,
+            title: "编辑字典细项",
+            url: "@Url.Action("Modify")?id=" + id,
+            btn: ["保存", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    contentWindow.saveInfo(function (data) {
+                        refreshItem(data);
+                        app.closeWindow(index, true);
+                        app.showSuccess("保存成功！");
+                    });
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    $(function () {
+        $("#tree").fancytree({
+            checkbox: false,
+            titlesTabbable: true,     // Add all node titles to TAB chain
+            quicksearch: true,        // Jump to nodes when pressing first character
+            // source: SOURCE,
+            source: getTreeSource(),
+
+            extensions: ["dnd", "table"],
+
+            dnd: {
+                preventVoidMoves: true,
+                preventRecursiveMoves: true,
+                autoExpandMS: 400,
+                dragStart: function () {
+                    return true;
+                },
+                dragEnter: function () {
+                    return true;
+                },
+                dragDrop: function (node, data) {
+                    app.invokeService({
+                        url: "@Url.Action("DragDicItem")",
+                        data: {
+                            sourceId: data.otherNode.data.id,
+                            targetId: node.data.id,
+                            hitMode: data.hitMode
+                        },
+                        success: function (d) {
+                            if (d.Result) {
+                                data.otherNode.moveTo(node, data.hitMode);
+                            } else {
+                                app.showError(d.Message);
+                            }
+                        }
+                    });
+                }
+            },
+            table: {
+                indentation: 20,
+                nodeColumnIdx: 0,
+                checkboxColumnIdx: 0
+            },
+            gridnav: {
+                autofocusInput: false,
+                handleCursorKeys: true
+            },
+            renderColumns: function (event, data) {
+                var node = data.node;
+                var tdList = $(node.tr).find(">td");
+                tdList.eq(1).html(node.data.remark);
+            }
+        }).on("nodeCommand", function (event, data) {
+            var tree = $(this).fancytree("getTree");
+            var node = tree.getActiveNode();
+
+            switch (data.cmd) {
+                case "edit":
+                    modifyDicItem(node.data.id);
+                    handingNode = { node: node, cmd: data.cmd };
+                    break;
+                case "delete":
+                    var tip = "您确定要删除该字典项？";
+                    var success = function (d) {
+                        if (d.Result) {
+                            app.showSuccess("删除成功！");
+                            node.remove();
+                        } else {
+                            app.showError(d.Message);
+                        }
+                    };
+                    top.layer.confirm(tip, {
+                        btn: ["确定删除", "取消"],
+                        title: "提示"
+                    }, function () {
+                        app.invokeService({
+                            url: "@Url.Action("RemoveDicItem")?id=" + node.data.id,
+                            success: success
+                        });
+                    });
+                    break;
+                case "add":
+                    addDicItem(node.data.id);
+                    handingNode = { node: node, cmd: data.cmd };
+                    break;
+                default:
+                    app.showWarning("Unhandled command: " + data.cmd);
+                    return;
+            }
+        });
+
+        $("#tree").contextmenu({
+            delegate: "tbody tr",
+            menu: [
+                { title: "编辑", cmd: "edit", uiIcon: "ui-icon-pencil" },
+                { title: "删除", cmd: "delete", uiIcon: "ui-icon-trash" },
+                { title: "----" },
+                { title: "新增子项", cmd: "add", uiIcon: "ui-icon-plus" }
+            ],
+            beforeOpen: function (event, ui) {
+                var node = $.ui.fancytree.getNode(ui.target);
+                node.setActive();
+            },
+            select: function (event, ui) {
+                var that = this;
+                // delay the event, so the menu can close and the click event does
+                // not interfere with the edit control
+                setTimeout(function () {
+                    $(that).trigger("nodeCommand", { cmd: ui.cmd });
+                }, 100);
+            }
+        });
+    });
+</script>
+
+
+
+

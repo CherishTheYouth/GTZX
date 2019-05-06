@@ -1,0 +1,133 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "示例";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+<form class="layui-form">
+    <div class="layui-form-item">
+        <h2>文件上传示例：</h2>
+    </div>
+    <div class="layui-form-item">
+        <input type="button" class="layui-btn layui-btn-small" value="上传文件" onclick=" uploadFile() " />
+        <input type="button" class="layui-btn layui-btn-small" value="上传文件（完成自动处理）" onclick=" uploadFileAutoHandle() " />
+    </div>
+    <div class="layui-form-item">
+        <p id="pUploadResult"></p>
+    </div>
+    <div class="layui-form-item">
+        <h2>百度地图示例：</h2>
+    </div>
+    <div class="layui-form-item">
+        <input type="button" class="layui-btn layui-btn-small" value="地图选点" onclick=" selectPoint() " />
+        <input type="button" class="layui-btn layui-btn-small" value="绘制折线" onclick=" drawPolyline() " />
+        <input type="button" class="layui-btn layui-btn-small" value="绘制多边形" onclick=" drawPolygon() " />
+    </div>
+    <div class="layui-form-item">
+        <p id="pMapResult"></p>
+    </div>
+</form>
+
+<script>
+    var uploadFile = function () {
+        app.openWindow({
+            width: 630,
+            height: 470,
+            title: "文件上传",
+            url: "@Url.Action("Index", "UploadFile")",
+            btn: ["上传完成，关闭", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    var list = contentWindow.fileList;
+                    $("#pUploadResult").html("返回数据为：" + JSON.stringify(list));
+                    app.closeWindow(index, true);
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var uploadFileAutoHandle = function () {
+        app.openWindow({
+            width: 630,
+            height: 430,
+            title: "文件上传",
+            url: "@Url.Action("Index", "UploadFile")?maxSize=1024",
+            success: function (contentWindow, index) {
+                contentWindow.setAutoFinishCallback(function (data) {
+                    $("#pUploadResult").html("返回数据为：" + JSON.stringify(data));
+                    app.closeWindow(index, true);
+                });
+            },
+            showOnTop: true
+        });
+    };
+
+    var selectPoint = function () {
+        app.openWindow({
+            width: 1000,
+            height: 600,
+            title: "地图选点",
+            url: "@Url.Action("Point", "BaiduMap")?allowedit=true",
+            btn: ["确定", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    var result = contentWindow.getResult();
+                    $("#pMapResult").html("操作完成，返回数据为：" + JSON.stringify(result));
+                    app.closeWindow(index, true);
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var drawPolyline = function () {
+        app.openWindow({
+            width: 1000,
+            height: 600,
+            title: "绘制折线",
+            url: "@Url.Action("Polyline", "BaiduMap")?allowedit=true",
+            btn: ["确定", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    var result = contentWindow.getResult();
+                    $("#pMapResult").html("操作完成，返回数据为：" + JSON.stringify(result));
+                    app.closeWindow(index, true);
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var drawPolygon = function () {
+        app.openWindow({
+            width: 1000,
+            height: 600,
+            title: "绘制多边形",
+            url: "@Url.Action("Polygon", "BaiduMap")?allowedit=true",
+            btn: ["确定", "取消"],
+            callback: [
+                function (contentWindow, index) {
+                    var result = contentWindow.getResult();
+                    $("#pMapResult").html("操作完成，返回数据为：" + JSON.stringify(result));
+                    app.closeWindow(index, true);
+                }
+            ],
+            showOnTop: true
+        });
+    };
+
+    var calculate = function () {
+        app.invokeService({
+            url: "/api/Calculator?statement=" + $("#tbStatement").val(),
+            success: function (data) {
+                if (data.Result) {
+                    $("#tbCalculateResult").val(data.Data);
+                } else {
+                    app.showError(data.Message);
+                }
+            }
+        });
+    };
+</script>

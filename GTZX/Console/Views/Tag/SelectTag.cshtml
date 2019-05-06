@@ -1,0 +1,65 @@
+﻿@using Modules
+@using Newtonsoft.Json
+@using ORM
+@model List<Guid>
+@{
+    ViewBag.Title = "标签选择";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+@{
+    <script>
+        var allowMulti = ("@ViewBag.allowMulti" === "True");
+        var selectedList = eval("@(JsonConvert.SerializeObject(ViewBag.selectedList))");
+    </script>
+}
+<form class="layui-form">
+    <div id="divTag">
+        @using (var context = new MyDbContext())
+        {
+            var type = (TagType)ViewBag.Type;
+            var tags = context.Tags.Where(x=>x.Type == type).OrderBy(x => x.OrderNumber).ToList();
+            foreach (var tag in tags)
+            {
+                <input type="checkbox" value="@tag.Id" title="@tag.Name" @(Model.Contains(tag.Id) ? "checked='checked'" : "") />
+            }
+        }
+    </div>
+</form>
+
+<script>
+        var form;
+
+        $(document).ready(function () {
+            form = layui.form;
+            form.render();
+
+            form.on("checkbox", function (data) {
+                if (data.elem.checked) {
+                    if (!allowMulti) {
+                        $(data.elem).parent().children().each(function (i, item) {
+                            if (item !== data.elem) {
+                                item.checked = false;
+                                $(item).next().removeClass("layui-form-checked");
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+        var getSelectedItems = function (callback) {
+            var selectedIds = [];
+            $("#divTag input[type='checkbox']").each(function () {
+                if ($(this)[0].checked) {
+                    selectedIds.push({
+                        id: $(this).val(),
+                        name: $(this).attr("title")
+                    });
+                }
+            });
+            if (callback) {
+                callback(selectedIds);
+            }
+        };
+</script>

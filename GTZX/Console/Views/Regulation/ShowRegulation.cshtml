@@ -1,0 +1,40 @@
+﻿@using Modules
+@model Regulation
+
+@{
+    ViewBag.Title = "政策文件查看";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+<head>
+    <link href="~/Content/css/ShowRegulation.css" rel="stylesheet" />
+</head>
+
+
+<div class="layui-form-item sel-fixed-right">
+    <div class="layui-input-block">
+        <input type="button" class="layui-btn layui-btn-small layui-btn-primary" value="返回" onclick="history.go(-1)" />
+    </div>
+</div>
+<div class="content">
+    <div class="headline">
+        <label for="">@Model.RegulationName</label>
+    </div>
+    <div class="sub_headline">
+        @*<label class="time">@Model.CreateTime.Format("yyyy-MM-dd")</label>*@
+        <div class="resoure">
+            <label>文件编号：</label><span class="">@Model.RegulationNo</span>
+        </div>
+        <div class="resoure">
+            <label>颁布部门：</label><span>@Model.PublishDep</span>
+        </div>
+        <div class="resoure">
+            <label>时间：</label><span class="">@Model.PublishDate</span>
+        </div>
+    </div>
+    <div class="container">
+        @Html.Raw(Model.RegulationContent)
+    </div>
+</div>
+
+

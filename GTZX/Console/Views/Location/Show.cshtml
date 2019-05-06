@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "位置显示";
+    Layout = "../Shared/_BaiduMapLayout.cshtml";
+}
+
+<div id="allmap" class="map"></div>
+<div class="control">
+    <div class="layui-inline">
+        <div class="layui-input-inline">
+            <input id="tbName" disabled="disabled" type="text" class="layui-input layui-input-mini" />
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var totalLng = 0;
+    var totalLat = 0;
+    var pointCount = 0;
+
+    var createPoint = function(detail) {
+        var maker = new BMap.Marker(new BMap.Point(detail.coordinate.lng, detail.coordinate.lat));
+        map.addOverlay(maker);
+        maker.setTitle(detail.name);
+        totalLng += detail.coordinate.lng;
+        totalLat += detail.coordinate.lat;
+        pointCount++;
+
+        maker.addEventListener("mouseover", function () {
+            $("#tbName").val(detail.name);
+        });
+        maker.addEventListener("mouseout", function () {
+            $("#tbName").val("");
+        });
+    };
+
+    var createPolygon = function (detail) {
+        var list = [];
+        for (var i = 0; i < detail.coordinate.length; i++) {
+            list.push(new BMap.Point(detail.coordinate[i].lng, detail.coordinate[i].lat));
+            totalLng += detail.coordinate[i].lng;
+            totalLat += detail.coordinate[i].lat;
+        }
+        pointCount += detail.coordinate.length;
+        var polygon = new BMap.Polygon(list, { strokeWeight: 1, strokeColor: "#eaad9a", strokeOpacity: 0.9, fillColor: "#f87b54", fillOpacity: 0.9 });
+        map.addOverlay(polygon);
+        polygon.addEventListener("mouseover", function () {
+            polygon.setFillColor("#eaad9a");
+            $("#tbName").val(detail.name);
+        });
+        polygon.addEventListener("mouseout", function () {
+            polygon.setFillColor("#f87b54");
+            $("#tbName").val("");
+        });
+    };
+
+    var createPolyline = function (detail) {
+        var list = [];
+        for (var i = 0; i < detail.coordinate.length; i++) {
+            list.push(new BMap.Point(detail.coordinate[i].lng, detail.coordinate[i].lat));
+            totalLng += detail.coordinate[i].lng;
+            totalLat += detail.coordinate[i].lat;
+        }
+        pointCount += detail.coordinate.length;
+        var polyline = new BMap.Polyline(list, { strokeWeight: 2, strokeColor: "#f87b54", strokeOpacity: 0.9});
+        map.addOverlay(polyline);
+        polyline.addEventListener("mouseover", function () {
+            polyline.setStrokeColor("#eaad9a");
+            $("#tbName").val(detail.name);
+        });
+        polyline.addEventListener("mouseout", function () {
+            polyline.setStrokeColor("#f87b54");
+            $("#tbName").val("");
+        });
+    };
+
+    // 百度地图API功能
+    var map = new BMap.Map("allmap", { enableMapClick: false });
+    map.enableScrollWheelZoom();
+    var top_left_control = new BMap.ScaleControl({ anchor: BMAP_ANCHOR_TOP_LEFT });// 左上角，添加比例尺
+    var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+    map.addControl(top_left_control);
+    map.addControl(top_left_navigation);
+
+    var detailString = '@(Html.Raw(@ViewBag.DetailList))';
+    if (detailString) {
+        var list = JSON.parse(detailString);
+        if (list && list.length > 0) {
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].type === "point") {
+                    createPoint(list[i]);
+                } else if (list[i].type === "polygon") {
+                    createPolygon(list[i]);
+                }else if (list[i].type === "polyline") {
+                    createPolyline(list[i]);
+                }
+            }
+            var centerLng = totalLng / pointCount;
+            var centerLat = totalLat / pointCount;
+            map.centerAndZoom(new BMap.Point(centerLng, centerLat), 14);
+        } else {
+            map.centerAndZoom("武汉", 14);
+        }
+    } else {
+        map.centerAndZoom("武汉", 14);
+    }
+</script>

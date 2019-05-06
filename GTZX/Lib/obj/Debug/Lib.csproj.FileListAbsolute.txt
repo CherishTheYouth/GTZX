@@ -1,0 +1,17 @@
+G:\SourceCode\GTZX\Lib\bin\Debug\Lib.dll
+G:\SourceCode\GTZX\Lib\bin\Debug\Lib.pdb
+G:\SourceCode\GTZX\Lib\obj\Debug\Lib.csproj.CoreCompileInputs.cache
+G:\SourceCode\GTZX\Lib\obj\Debug\Lib.dll
+G:\SourceCode\GTZX\Lib\obj\Debug\Lib.pdb
+D:\Asp.Net\AspNetCode\GTZX\Lib\bin\Debug\Lib.dll
+D:\Asp.Net\AspNetCode\GTZX\Lib\bin\Debug\Lib.pdb
+D:\Asp.Net\AspNetCode\GTZX\Lib\obj\Debug\Lib.csprojAssemblyReference.cache
+D:\Asp.Net\AspNetCode\GTZX\Lib\obj\Debug\Lib.csproj.CoreCompileInputs.cache
+D:\Asp.Net\AspNetCode\GTZX\Lib\obj\Debug\Lib.dll
+D:\Asp.Net\AspNetCode\GTZX\Lib\obj\Debug\Lib.pdb
+D:\Asp.Net\AspNetCode\net重要案例\GTZX\Lib\bin\Debug\Lib.dll
+D:\Asp.Net\AspNetCode\net重要案例\GTZX\Lib\bin\Debug\Lib.pdb
+D:\Asp.Net\AspNetCode\net重要案例\GTZX\Lib\obj\Debug\Lib.csprojAssemblyReference.cache
+D:\Asp.Net\AspNetCode\net重要案例\GTZX\Lib\obj\Debug\Lib.csproj.CoreCompileInputs.cache
+D:\Asp.Net\AspNetCode\net重要案例\GTZX\Lib\obj\Debug\Lib.dll
+D:\Asp.Net\AspNetCode\net重要案例\GTZX\Lib\obj\Debug\Lib.pdb

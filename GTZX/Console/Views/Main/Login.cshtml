@@ -1,0 +1,281 @@
+﻿@{
+    ViewBag.Title = "用户登录 - 国土征信数据服务";
+    Layout = Href("../Shared/_TopLayout.cshtml");
+}
+@using Console.Util
+<script src="~/Content/layui/layui.js"></script>
+<style>
+    body {
+        padding: 0px 0px!important;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        font-family: Helvetica;
+    }
+
+    header {
+        height: 100px;
+        width: 100%;
+    }
+
+        header span {
+            font-size: 40px;
+            color: #009ce4;
+            font-weight: 400;
+            line-height: 100px;
+            margin-left: 12%;
+        }
+
+    .content {
+        position: absolute;
+        top: 100px;
+        left: 0;
+        height: calc( 100% - 200px);
+        width: 100%;
+        background: #009ce4;
+    }
+
+    .container {
+        margin: 0 auto;
+        width: 76%;
+        height: 100%;
+    }
+
+    .left {
+        height: 100%;
+        position: absolute;
+        background: url(../Content/images/login.png) no-repeat left center;
+        width: 650px;
+        background-size: 72%;
+    }
+
+    .right {
+        position: absolute;
+        width: 360px;
+        height: 380px;
+        background: #fff;
+        top: 50%;
+        right: 12%;
+        margin-top: -190px;
+        float: right;
+    }
+
+        .right h3 {
+            font-weight: 700;
+            color: #333;
+            font-size: 20px;
+            margin: 20px 0 0 32px;
+        }
+
+    .layui-form-item {
+        margin-left: 32px;
+        margin-right: 32px;
+        margin-top: 18px;
+    }
+
+    .layui-form-label {
+        border-radius: 2px 0 0 2px;
+        text-align: center;
+        background: #e2e2e4;
+        width: 44px;
+        padding: 9px 0;
+    }
+
+    .layui-input {
+        border: none;
+        width: 242px;
+        background: #fff;
+    }
+
+    .layui-btn-normal {
+        padding: 0 132px;
+        height: 40px;
+        font-size: 16px;
+        background: #009ce4 !important;
+    }
+
+    .layui-form-checked[lay-skin=primary] i {
+        border-color: #009ce4 !important;
+        background: #009ce4 !important;
+    }
+
+    .layui-form-span a {
+        color: #797979;
+    }
+
+    .layui-form-span img {
+        margin-left: 5px;
+    }
+
+    .layui-border {
+        border: 1px solid #cdcdcd;
+    }
+
+    .layui-btn-primary {
+        border: none;
+        width: 110px;
+        height: 38px;
+        margin-right: 0;
+    }
+
+    footer {
+        width: 100%;
+        height: 100px;
+        line-height: 100px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        color: #797979;
+    }
+
+    .end_text {
+        margin: 0 auto;
+        width: 76%;
+        height: 100px;
+    }
+
+    input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill input:-webkit-autofill:hover, input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px white inset;
+    }
+</style>
+@using (Ajax.BeginForm("ValidateLogin", new { }, new AjaxOptions { HttpMethod = "Post", OnSuccess = "loginSuccessed", OnBegin = "validateData" }, new { @class = "layui-form" }))
+{
+    
+   
+    <div class="layui-form">
+        <header><span>国土征信数据服务</span></header>
+        <div class="content" id="content">
+            <div class="container">
+                <div class="left"></div>
+                <div class="right">
+
+                    <h3>账号登录</h3>
+
+                    <div class="layui-form-item layui-border">
+                        <label class="layui-form-label">
+                            <img src="../Content/images/user.png" alt=""></label>
+                        <div class="layui-input-inline">
+                            <input id="tbName" type="text" name="userName" lay-verify="required" class="layui-input" placeholder="姓名/用户名" />
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item layui-border">
+                        <label class="layui-form-label">
+                            <img src="../Content/images/password.png" alt=""></label>
+                        <div class="layui-input-inline">
+                            <input id="tbPassword" type="password" name="password" lay-verify="required" class="layui-input" placeholder="密码" />
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+								<div class="layui-inline layui-border" style="margin-left:0;">
+									<label class="layui-form-label"><img src="../Content/images/verify.png" alt=""></label>
+									<input type="text" class="layui-input" name="validateCode" id="validateCode" lay-verify="required" placeholder="验证码" style="margin:0;width:127px;">
+								</div>	
+								<div class="layui-inline layui-border" style="float:right;margin-right:0px;">
+									<button class="layui-btn layui-btn-primary">1</button>
+								</div>
+							</div>
+
+                    <div class="layui-form-item" pane="" style="margin-top: -5px;">
+                        <input type="checkbox" name="like1[write]" lay-skin="primary" title="记住密码">
+                    </div>
+
+                    <div class="layui-form-item">
+                        <button class="layui-btn layui-btn-normal" onclick=" login() ">登录</button>
+                    </div>
+
+                    <div class="layui-form-item" style="margin-top: 20px;">
+                        <div class="layui-inline" style="float: left;">
+                            <span for="" class="layui-form-span"><a href="">忘记密码</a></span>
+                        </div>
+                        <div class="layui-inline" style="float: right; margin-right: 0px;">
+                            <span class="layui-form-span"><a href="../User/Register">注册<img src="../Content/images/enter.png" alt=""></a>
+                            </span>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="end_text">
+                <span class="layui-form-span" style="float: left; margin-left: 1.5%;">®2018-2020 &nbsp; 武汉时代地智科技股份有限公司 &nbsp; 版权所有</span>
+                <span class="layui-form-span" style="float: right; margin-right: 0;">网站地图 &nbsp; | &nbsp; 法律声明 &nbsp; |  &nbsp;友情链接</span>
+            </div>
+        </footer>
+    </div>	
+    <script>
+        layui.use(['form'], function () {
+            var form = layui.form
+        })
+
+
+    </script>
+ 
+ 
+}
+
+
+
+<script>
+
+
+    var Register = function () {
+        location.href = "@Url.Action("../User/Register")";
+    };
+
+    $(function () {
+        if (top !== self) {
+            top.location = self.location;
+        } else {
+            $("#tbName").focus();
+        }
+    });
+
+
+    var loginSuccessed = function (result) {
+        app.endLoading();
+        if (result.Result) {
+            location.href = "/";
+        } else {
+            app.showError(result.Message);
+            $("#tbPassword").val("");
+            $("#tbPassword").focus();
+        }
+    };
+
+    var validateData = function () {
+        var isValid = app.verifyInput();
+        if (isValid) {
+            app.startLoading();
+        }
+        return isValid;
+    };
+
+    var login = function () {
+        $("form").submit();
+        @*var name = "wl";
+        app.invokeService({
+            url: "@ConfigUtil.GetApiUrl()/api/user/getUser/" + name,
+            type:"get",
+            success: function (data) {
+
+                alert(data.LoginName);
+                alert(data.Password);
+            ///    alert(JSON.stringify(data));
+            }
+        })*@
+    };
+
+    $(document).ready(function () {
+        app.tapEnter(document, login);
+
+        //防止页面后退
+        app.disableBack();
+    });
+</script>

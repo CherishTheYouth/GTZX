@@ -1,0 +1,174 @@
+﻿@{
+    ViewBag.Title = "UploadFileList";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+<div class="sel-btn-right">
+    <input type="button" class="layui-btn layui-btn-small" value="上传文件" onclick=" uploadFileAutoHandle() " />
+</div>
+<div class="clearfix"></div>
+<table id="tree" class="layui-table" lay-even style="margin-top: 10px">
+    <colgroup>
+        <col style="width: 50%">
+        <col>
+        <col style="width: 150px">
+    </colgroup>
+    <thead>
+        <tr>
+            <th>文件名称</th>
+            <th>上传时间</th>
+            <th class="textCenter">操作</th>
+        </tr>
+    </thead>
+    <tbody id="tBody"></tbody>
+</table>
+<div id="divPage"></div>
+<script id="template" type="text/html">
+    {{# layui.each(d,function(index,item){ }}
+    <tr>
+        <td>
+            {{=item.Name}}
+        </td>
+        <td>
+            {{=item.UploadTime}}
+        </td>
+        <td class="table-operation-box textCenter">
+            <i class="layui-icon table-operation" onclick=" downloaditem('{{=item.id}}') " title=" 下载">&#xe642;</i>
+            <span class="table-operation-spliter">|</span>
+            <i class="layui-icon table-operation" onclick=" removeitem('{{item.id}}') " title=" 删除">&#xe640;</i>
+        </td>
+    </tr>
+    {{#});}}
+    {{# if(d.length == 0){}}
+    <div class="empty-table" style="width: 100%;">暂无数据</div>
+    {{#}}}
+</script>
+<script>
+    $(function () {
+        query();
+    });
+    var condition;
+    var query = function () {
+        var page = (condition && condition.page) ? condition.page : 1;
+        condition = {
+            page: page,
+            targetId: '@ViewBag.targetId',
+            group: '@ViewBag.group'
+        };
+        app.loadList("@Url.Action("GetUploadFileList")", condition, loadData, "divPage");
+    };
+
+    var loadData = function (data) {
+        var tpl = $("#template").html();
+        layui.laytpl(tpl).render(data, function (html) {
+            $("#tBody").html(html);
+            window.handleForbiddenFuncs();
+        });
+    };
+
+
+    @*//上传文件
+    var uploadFile = function () {
+        top.layer.open({
+            type: 2,
+            area: ["720px", "450px"],
+            fixed: false, //不固定
+            title: "文件上传",
+            content: "@Url.Action("Index", "UploadFile")?targetId=@ViewBag.targetId&group=@ViewBag.group",
+            btn: ["上传完成，关闭", "取消"],
+            yes: function (index, la) {
+                //var list = top.window[la.find("iframe")[0]["name"]].fileList;
+                //$("#pUploadResult").html("上传完成，返回数据为：" + JSON.stringify(list));
+                top.layer.close(index);
+                query();
+                return false;
+            }
+        });
+    };*@
+
+    var uploadFileAutoHandle = function () {
+        top.layer.open({
+            type: 2,
+            area: ["720px", "410px"],
+            fixed: false, //不固定
+            title: "文件上传",
+            content: "@Url.Action("Index", "UploadFile")",
+            success: function (la, index) {
+                top.window[la.find("iframe")[0]["name"]].setAutoFinishCallback(function (data) {
+                    var idList = [];
+                    for (var i = 0; i < data.length; i++) {
+                        idList.push((data[i].Id));
+                    }
+                    ajax({
+                        url: "@Url.Action("SetUploadFileRelation")?targetId=@ViewBag.targetId&group=@ViewBag.group",
+                        data: idList,
+                        success: function (d) {
+                            if (d.Result) {
+                                top.layer.close(index);
+                                top.showSuccess("上传成功！");
+                            } else {
+                                top.showError(d.Message);
+                            }
+                            query();
+                        }
+                    });
+                    top.layer.close(index);
+                });
+                App.showSuccess("上传窗体已打开");
+            }
+        });
+
+        app.openWindow({
+            type: 2,
+            width: 720,
+            height: 410,
+            title: "文件上传",
+            url: "@Url.Action("Index", "UploadFile")",
+            success: function (win, index) {
+                win.setAutoFinishCallback(function (data) {
+                    var idList = [];
+                    for (var i = 0; i < data.length; i++) {
+                        idList.push((data[i].Id));
+                    }
+                    ajax({
+                        url: "@Url.Action("SetUploadFileRelation")?targetId=@ViewBag.targetId&group=@ViewBag.group",
+                        data: idList,
+                        success: function (d) {
+                            if (d.Result) {
+                                app.closeWindow(index, true);
+                                app.showSuccess("上传成功！");
+                            } else {
+                                app.showError(d.Message);
+                            }
+                            query();
+                        }
+                    });
+                    app.closeWindow(index, true);
+                });
+                app.showSuccess("上传窗体已打开");
+            },
+            showOnTop: true
+        });
+    };
+
+
+    //下载
+    var downloadItem = function (id) {
+        location.href = "@Url.Action("Download")?id=" + id;
+    };
+
+    var removeItem = function (id) {
+        layer.confirm("您确定要删除该信息？", {
+            btn: ["确定删除", "取消"],
+            title: "提示"
+        }, function () {
+            ajax({
+                url: "@Url.Action("Romove")?id=" + id,
+                success: function () {
+                    query();
+                    app.showSuccess("删除成功！");
+                }
+            });
+        });
+    };
+</script>

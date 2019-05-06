@@ -1,0 +1,56 @@
+﻿@model Modules.Func
+
+@{
+    ViewBag.Title = "新增/编辑功能";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+
+@using (Ajax.BeginForm("SaveFunc", new { Model.Id, Model.ParentId }, new AjaxOptions { HttpMethod = "Post", OnSuccess = "saveSuccessed", OnBegin = "validateData" }, new { @class = "layui-form" }))
+{
+    <div class="layui-form-item">
+        <label class="layui-form-label required">功能名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="Name" lay-verify="required" autocomplete="false" placeholder="功能简要说明" class="layui-input" value="@Model.Name"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">功能编码</label>
+        <div class="layui-input-block">
+            <input type="text" name="FuncCode" autocomplete="false" class="layui-input" placeholder="主要用于页面访问权限的控制（不可重复）" value="@Model.FuncCode"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">备注</label>
+        <div class="layui-input-block">
+            <textarea name="Remark" autocomplete="false" style="height: 80px" class="layui-input">@Model.Remark</textarea>
+        </div>
+    </div>
+}
+
+<script>
+    var successCallback;
+
+    var saveSuccessed = function (result) {
+        app.endLoading();
+        if (result.Result) {
+            if (successCallback) {
+                successCallback(result.Data);
+            }
+        } else {
+            app.showError(result.Message);
+        }
+    };
+
+    var validateData = function () {
+        var isValid = app.verifyInput();
+        if (isValid) {
+            app.startLoading();
+        }
+        return isValid;
+    };
+
+    var saveInfo = function (callback) {
+        successCallback = callback;
+        $("form").submit();
+    };
+</script>

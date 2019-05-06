@@ -1,0 +1,129 @@
+﻿@using Modules
+@using ORM
+@using Console.App_Start
+@model Regulation
+@{
+    ViewBag.Title = "通知公告";
+    Layout = "../Shared/_TopLayout.cshtml";
+    MyDbContext context = new MyDbContext();
+}
+
+@*----------------------------------------------------------------------外部链接文件-----------------------------------------------------------------------------*@
+<script type="text/javascript" charset="utf-8" src="~/Content/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="~/Content/ueditor/ueditor.all.min.js"> </script>
+<!--建议手动加在语言，避免在ie下有时因为加载语言失败导致编辑器加载失败-->
+<!--这里加载的语言文件会覆盖你在配置项目里添加的语言类型，比如你在配置项目里配置的是英文，这里加载的中文，那最后就是中文-->
+<script type="text/javascript" charset="utf-8" src="~/Content/ueditor/lang/zh-cn/zh-cn.js"></script>
+
+@*----------------------------------------------------------------------外部链接文件-----------------------------------------------------------------------------*@
+
+@using (Ajax.BeginForm("Save", new { @Model.Id, @Model.ParentId }, new AjaxOptions { HttpMethod = "Post", OnBegin = "validateData", OnSuccess = "saveSuccessed" }, new { @class = "layui-form" }))
+{
+    <div class="margin15 sel-relative">
+        <div class="layui-form-item sel-fixed-right">
+            <div class="layui-input-block">
+                <input type="button" class="layui-btn layui-btn-small layui-btn-normal" value="保存" onclick="saveInfo()" />
+                <input type="button" class="layui-btn layui-btn-small layui-btn-primary" value="返回" onclick="history.go(-1)" />
+            </div>
+        </div>
+        <div class="blank20"></div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">文件名称</label>
+            <div class="layui-input-block" style="width: 554px; position: relative;">
+                <input type="text" name="RegulationName" lay-verify="required" placeholder="文件名称" autocomplete="off" class="layui-input" value="@Model.RegulationName" id="ITitle">             
+            </div>           
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">颁布单位</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="PublishDep" placeholder="颁布单位" class="layui-input" value="@Model.PublishDep" id="ISource">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">文件编号</label>
+            <div class="layui-input-inline">
+                <input type="text" name="RegulationNo" lay-verify="required" placeholder="文件编号" autocomplete="off" class="layui-input" value="@Model.RegulationNo" id="ITitle">
+            </div>
+        </div>
+        <div class="layui-form-item">   
+            <label class="layui-form-label required">文件目录</label>
+            <div class="layui-input-inline"  style="z-index:1009">
+                @*@{ 
+                    var data = context.DicItems.Where(x => x.Name == "政策文件目录").FirstOrDefault();
+                }*@
+
+                @Html.DropDownListFor(m => m.ParentId, GetSelectHelper.GetSelectDic(Dic.RegulationType,null), new { @lay_search = "" })
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">内容</label>
+                <div class="layui-input-block" style="width: 800px; position: relative;">
+                    <script id="editor" name="editor" type="text/plain" style="width: 800px; height: 500px;">
+                        @Html.Raw(Model.RegulationContent)
+                    </script>
+                </div>
+            </div>
+        </div>
+    @*<div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">备注</label>
+        <div class="layui-input-block" style="width: 554px; position: relative;">
+            <textarea name="Remark" placeholder="请输入" class="layui-textarea">@Model.Remark</textarea>
+        </div>
+    </div>*@
+</div>
+
+}
+
+
+<script type="text/javascript">
+
+
+
+   var ue = UE.getEditor('editor');
+
+    var form;
+    $(document).ready(function () {
+        form = layui.form;
+        form.render();
+    });
+
+    var saveSuccessed = function (result) {
+        app.endLoading();
+        if (result.Result) {
+            app.showSuccess("保存成功！");
+            window.history.go(-1);
+        } else {
+            app.showError(result.Message);
+            
+        }
+    };
+
+    var validateData = function () {
+        var isValid = app.verifyInput();
+        if (isValid) {
+            app.startLoading();
+        }
+        return isValid;
+    };
+
+    var saveInfo = function (callback) {
+        UE.getEditor('editor').sync();
+        successCallback = callback;
+        $("form").submit();
+    };
+
+</script>
+
+<script>
+    var isExist = "@(new MyDbContext().Regulations.Find(Model.Id) != null)" === "True";
+    var validateAddPermission = function () {
+        return !isExist;
+    };
+
+    var validateEditPermission = function () {
+        return isExist;
+    };
+</script>

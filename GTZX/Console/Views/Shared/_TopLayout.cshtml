@@ -1,0 +1,120 @@
+﻿@using Console
+@using Newtonsoft.Json
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link href="~/Content/css/global.css" rel="stylesheet" />
+    <link href="~/Content/layui/css/layui.css" rel="stylesheet" />
+    @*<link href="~/Content/css/app.css" rel="stylesheet" />*@
+    <link href="~/Content/css/icon.css" rel="stylesheet" />   
+    <script src="~/Content/js/jquery-2.1.0.min.js"></script>
+    <script src="~/Content/js/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/Content/layui/layui.all.js"></script>
+    <script src="~/Content/js/app.js"></script>
+    <style>
+        body {
+            padding: 15px 20px;
+        }
+    </style>
+    @{
+        var unauthFuncCodes = CacheUtil.GetForbiddenFuncs().Select(x => x.FuncCode).ToList();
+        if (unauthFuncCodes.Count > 0)
+        {
+        <script>
+            var unauthFuncCodes = '@Html.Raw(JsonConvert.SerializeObject(unauthFuncCodes))';
+            window.forbiddenFuncs = JSON.parse(unauthFuncCodes);
+        </script>
+        }
+    }
+    <script>
+        var handleForbiddenFuncs = function () {
+            if (!window.forbiddenFuncs || window.forbiddenFuncs.length === 0) return;
+            var controls = $("[funcCode]");
+            for (var x = 0; x < controls.length; x++) {
+                // 判断是否需要验证权限，默认需要。
+                var before = $(controls[x]).attr("before");
+                if (before) {
+                    before = eval(before);
+                    if (before && !before(controls[x])) continue;
+                }
+
+                var funcCode = $(controls[x]).attr("funcCode");
+                var andIndex = funcCode.lastIndexOf("&");
+                var orIndex = funcCode.indexOf("\|");
+                // &和|同时包含时，视为无效权限
+                if (andIndex > 0 && orIndex > 0) return;
+                var funcArray = [];
+                if (andIndex > 0) {
+                    funcArray = funcCode.split("&");
+                }
+                if (orIndex > 0) {
+                    funcArray = funcCode.split("|");
+                }
+                var isForbidden = false;
+                if (funcArray.length > 0) {
+                    for (var y = 0; y < funcArray.length; y++) {
+
+                        if (funcArray[y] === "") continue;
+                        if (isForbiddenFunc(funcArray[y])) {
+
+                            if (andIndex > 0) {
+                                isForbidden = true;
+                                break;
+                            }
+                        } else {
+                            if (orIndex > 0) {
+                                isForbidden = false;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    isForbidden = isForbiddenFunc(funcCode);
+                }
+                if (isForbidden) {
+                    setForbiddenFunc(controls[x]);
+                }
+            }
+        };
+
+        var isForbiddenFunc = function (code) {
+            for (var i = 0; i < window.forbiddenFuncs.length; i++) {
+                if (window.forbiddenFuncs[i] === code) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        var setForbiddenFunc = function (control) {
+            var after = $(control).attr("after");
+            if (after) {
+                after = eval(after);
+                if (after) {
+                    after(control);
+                    return;
+                }
+            }
+            var parentControl = $(control).parent();
+            if (parentControl && parentControl[0].tagName === "BODY") {
+                $("body").hide();
+                location.href = "@Url.Action("Forbidden", "Menu")";
+            } else {
+                if ($(control)) {
+                    $(control).remove();
+                }
+            }
+        };
+
+        $(document).ready(function () {
+            handleForbiddenFuncs();
+        });
+    </script>
+</head>
+<body>
+    @RenderBody()
+</body>
+</html>

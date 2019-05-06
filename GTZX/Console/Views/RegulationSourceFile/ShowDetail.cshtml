@@ -1,0 +1,115 @@
+﻿@using Modules.Biz
+@using Modules
+@using ORM
+@using Console.App_Start
+@model RegulationSourceFile
+
+@{
+    ViewBag.Title = "ShowDetail";
+    Layout = "~/Views/Shared/_TopLayout.cshtml";
+}
+
+<style type="text/css">
+    .layui-form-item label {
+        width: 140px;
+    }
+
+    .layui-input-block {
+        margin-left: 170px;
+    }
+
+    .layui-form-item .layui-input-inline {
+        width: 160px;
+    }
+</style>
+
+ 
+
+<div class="sel-relative">
+    <div class="sel-fixed-right">
+        <input type="button" class="layui-btn layui-btn-small layui-btn-primary" value="返回" onclick="history.go(-1)" />
+    </div>
+    <div class="blank40"></div>
+    <div>
+        <table class="layui-table" style="width:60%;margin-left:20%;">
+            <colgroup>
+                <col width="200"/>
+                <col width="400">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th colspan="2">政策文件原始文件详情 </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>文件名</td>
+                    <td colspan="5">
+                        @Model.FileName
+                    </td>
+                </tr>
+                <tr>
+                    <td>文件编号</td>
+                    <td>
+                        @Model.FileNo
+                    </td>
+                </tr>
+                <tr>
+                    <td>源文件</td>
+                    <td>
+                        <div id="tDiv">
+                        </div>
+                    </td>
+                </tr>
+            </tbody>        
+        </table>
+    </div>
+</div>
+
+<script id="template" type="text/html">
+    {{# layui.each(d,function(index,item){ }}
+    <div class="attachmentName">
+        <i class="icon-attachment text_lightgray"></i>
+        <span class="attachmentTitle" onclick=" downloadItem('{{=item.Id}}') ">{{=item.Name}}</span>
+        <span class="attachmentSize"></span>
+        <span class="upload-time">{{=item.UploadTime}}</span>
+    </div>
+    {{#});}}
+</script>
+<script>
+    var form;
+    var element;
+    var successCallback;
+    $(document).ready(function () {
+        form = layui.form;
+        form.render();
+        queryUploadFile('@Model.Id',1,loadData);
+    });
+
+    //刷新当前页附件
+    var queryUploadFile = function (targetId,group,fun) {
+        $.ajax({
+                url: "@Url.Action("SetUploadFile")?targetId=" + targetId + "&group=" + group,
+                cache: false,
+                success: function (data) {
+                    fun(data);                   
+                }             
+        });
+       
+    }
+
+        var loadData = function (data) {
+            var tpl = $("#template").html();
+            layui.laytpl(tpl).render(data, function (html) {
+                $("#tDiv").html(html);
+                window.handleForbiddenFuncs();                
+            });
+        };
+
+        //下载
+        var downloadItem = function (id) {
+                location.href = "@Url.Action("Download", "UploadFile")?id=" + id;
+            };
+</script>
+
+

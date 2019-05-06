@@ -1,0 +1,81 @@
+﻿@using Helper.Extension
+@using Modules
+@using Newtonsoft.Json
+@using ORM
+@model Modules.Log
+@{
+    ViewBag.Title = "日志详情";
+    Layout = "../Shared/_TopLayout.cshtml";
+}
+<form class="layui-form">
+    <div class="layui-form-item">
+        <label class="layui-form-label">操作人：</label>
+        <div class="layui-input-block">
+            @using (var context = new MyDbContext())
+            {
+                string userName;
+                if (Model.UserId.Equals(Guid.Empty))
+                {
+                    userName = "管理员";
+                }
+                else
+                {
+                    var employee = context.Employees.Find(Model.UserId) ?? new Employee();
+                    userName = employee.FullName;
+                }
+                <input type="text" readonly="readonly" class="layui-input" value="@userName" />
+            }
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">操作时间：</label>
+        <div class="layui-input-block">
+            <input type="text" readonly="readonly" class="layui-input" value="@(Model.CreateTime.Format("yyyy年MM月dd日 HH:mm:dd"))"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">内容：</label>
+        <div class="layui-input-block">
+            <input type="text" readonly="readonly" class="layui-input" value="@(Model.Content)"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">详细：</label>
+        <div class="layui-input-block">
+            @{
+                if (string.IsNullOrEmpty(Model.Detail))
+                {
+                    <textarea class="layui-input" readonly="readonly" style="height: 120px">无</textarea>
+                }
+                else
+                {
+                    var list = JsonConvert.DeserializeObject<List<ObjectChangeInfo>>(Model.Detail);
+                    if (list == null || list.Count == 0)
+                    {
+                        <textarea class="layui-input" readonly="readonly" style="height: 120px">无</textarea>
+                    }
+                    else
+                    {
+                        <table class="layui-table">
+                            <thead>
+                            <tr>
+                                <td>字段</td>
+                                <td>旧值</td>
+                                <td>新值</td>
+                            </tr>
+                            </thead>
+                            @foreach (var item in list)
+                            {
+                                <tr>
+                                    <td>@item.Field</td>
+                                    <td>@item.OValue</td>
+                                    <td>@item.CValue</td>
+                                </tr>
+                            }
+                        </table>
+                    }
+                }
+            }
+        </div>
+    </div>
+</form>

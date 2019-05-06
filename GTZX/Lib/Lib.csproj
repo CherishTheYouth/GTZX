@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3EC2C5DF-CC6B-4ABA-AAB9-B46F58CE2415}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Lib</RootNamespace>
+    <AssemblyName>Lib</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="EntityFramework\EntityFramework.dll" />
+    <Content Include="EntityFramework\EntityFramework.SqlServer.dll" />
+    <Content Include="HangFire\Hangfire.Core.dll" />
+    <Content Include="HangFire\Hangfire.SqlServer.dll" />
+    <Content Include="MVC\Microsoft.Web.Infrastructure.dll" />
+    <Content Include="MVC\Microsoft.Web.Mvc.FixedDisplayModes.dll" />
+    <Content Include="MVC\System.Net.Http.Formatting.dll" />
+    <Content Include="MVC\System.Web.Helpers.dll" />
+    <Content Include="MVC\System.Web.Http.dll" />
+    <Content Include="MVC\System.Web.Http.WebHost.dll" />
+    <Content Include="MVC\System.Web.Mvc.dll" />
+    <Content Include="MVC\System.Web.Razor.dll" />
+    <Content Include="MVC\System.Web.WebPages.Deployment.dll" />
+    <Content Include="MVC\System.Web.WebPages.dll" />
+    <Content Include="MVC\System.Web.WebPages.Razor.dll" />
+    <Content Include="MySql\MySql.Data.dll" />
+    <Content Include="MySql\MySql.Data.Entity.EF6.dll" />
+    <Content Include="Newtonsoft.Json6.0\Newtonsoft.Json.dll" />
+    <Content Include="NPOI\ICSharpCode.SharpZipLib.dll" />
+    <Content Include="NPOI\NPOI.dll" />
+    <Content Include="NPOI\NPOI.OOXML.dll" />
+    <Content Include="NPOI\NPOI.OpenXml4Net.dll" />
+    <Content Include="NPOI\NPOI.OpenXmlFormats.dll" />
+    <Content Include="Oracle\Oracle.ManagedDataAccess.dll" />
+    <Content Include="Oracle\Oracle.ManagedDataAccess.EntityFramework.dll" />
+    <Content Include="QRCode\ThoughtWorks.QRCode.dll" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

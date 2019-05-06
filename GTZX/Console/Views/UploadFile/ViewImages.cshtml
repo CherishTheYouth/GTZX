@@ -1,0 +1,41 @@
+﻿@{
+    ViewBag.Title = "ViewImages";
+}
+@using Console.Util
+@model List<Guid>
+
+    <style>
+        body {
+            padding: 5px 5px 0 5px;
+        }
+
+        #divImg {
+            text-align: center;
+        }
+
+        img {
+            max-width: 100%;
+            margin-bottom: 5px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+    </style>
+
+    <div id="divImg">
+        @foreach (var id in Model)
+        {
+            <div>
+                <img lay-src="@(ConfigUtil.GetApiUrl())/api/UploadFile/@(id)?size=2">
+            </div>
+        }
+    </div>
+    <script>
+        $(document).ready(function () {
+            layui.flow.lazyimg({
+                elem: '#divImg img'
+            });
+        });
+    </script>
